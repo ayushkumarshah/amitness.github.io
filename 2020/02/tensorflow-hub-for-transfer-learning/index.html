@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#">
+  <!-- Basic Metas -->
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width">
+  <meta name="google-site-verification" content="xETphZ5K1WItiUzH0YMRgZ8njDZlQMcGd_HD3zxGkuI" />
+  <meta name="p:domain_verify" content="907458af45983f47cfdffa284ee6ec03"/>
+  <title>Transfer Learning in NLP with Tensorflow Hub and Keras</title>
+  <meta name="description" content="Learn how to integrate and finetune tensorflow-hub modules in Tensorflow 2.0">
+  <meta name="author" content="Amit Chaudhary">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css">
+    <link rel="stylesheet" href="https://amitness.com/theme/css/main.2c65ebea.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" integrity="sha384-9tPv11A+glH/on/wEu99NVwDPwkMQESOocs/ZGXPoIiLE8MU/qkqUcZ3zzL+6DuH" crossorigin="anonymous">
+	<style>
+		.katex { font-size: 1.4em !important; }
+	</style>
+  <style media="print">.is-hidden-print{display:none !important}</style>
+<meta property="og:title" content="Transfer Learning in NLP with Tensorflow Hub and Keras">
+  <meta property="og:description" content="Learn how to integrate and finetune tensorflow-hub modules in Tensorflow 2.0">
+<meta property="og:url" content="https://amitness.com/2020/02/tensorflow-hub-for-transfer-learning/">
+    <meta property="og:image" content="https://amitness.com/images/clickbait-or-not-illustration.png">
+    <meta name="twitter:image:alt" content="Amit Chaudhary">
+<meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:creator" content="@amitness">
+  <meta name="twitter:site" content="@amitness">
+    <meta property="twitter:image" content="https://amitness.com/images/clickbait-or-not-illustration.png">
+<meta property="og:site_name" content="Amit Chaudhary">
+<meta property="og:type" content="article">
+  <meta property="article:published_time" content="2020-02-02T19:00:00+05:45">
+  <meta property="article:modified_time" content="2020-02-02T19:00:00+05:45">
+  <meta property="article:section" content="nlp, tensorflow">
+</head>
+
+<body id="index" class="home">
+<header class="hero is-success">
+  <div class="hero-head">
+    <div class="container">
+      <nav class="navbar">
+        <div class="navbar-brand">
+          <a class="navbar-item title is-3"
+             href="https://amitness.com/">amitness</a>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<nav class="navbar has-shadow is-hidden-print">
+  <div class="container">
+    <div class="navbar-center"></div>
+    <span id="navToggle" class="navbar-burger">
+      <span></span>
+      <span></span>
+      <span></span>
+    </span>
+    <div id="navMenu" class="navbar-menu">
+        <div class="navbar-end">
+            <a class="navbar-item is-tab" href="/about/">about</a>
+            <a class="navbar-item is-tab" href="/archives">archive</a>
+            <a class="navbar-item is-tab" href="/contact/">contact</a>
+        </div>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="section columns">
+    <div class="column is-three-quarters-desktop is-two-thirds-tablet">
+<section id="content" class="body">
+  <article>
+    <h1 class="title">
+      <a href="https://amitness.com/2020/02/tensorflow-hub-for-transfer-learning/" rel="bookmark"
+         title="Permalink to Transfer Learning in NLP with Tensorflow Hub and Keras" class='article-title'>Transfer Learning in <span class="caps">NLP</span> with Tensorflow Hub and&nbsp;Keras</a></h1>
+<footer class="post-info">
+  <abbr class="published" title="2020-02-02T19:00:00+05:45">
+    Published <span class="is-info">February 02, 2020</span>
+    in nlp, tensorflow
+  </abbr>
+
+</footer>    <div class="section"><p>Tensorflow 2.0 introduced Keras as the default high-level <span class="caps">API</span> to build models. Combined with pretrained models from Tensorflow Hub, it provides a dead-simple way for transfer learning in <span class="caps">NLP</span> to create good models out of the&nbsp;box.   </p>
+<p><img alt="Clickbait Title Illustration" src="/images/clickbait-or-not-illustration.png"><br>
+To illustrate the process, let&#8217;s take an example of classifying if the title of an article is clickbait or&nbsp;not.</p>
+<h2 id="data-preparation">Data&nbsp;Preparation</h2>
+<p>We will use the dataset from the paper <a href="https://people.mpi-sws.org/~achakrab/papers/chakraborty_clickbait_asonam16.pdf">&#8216;Stop Clickbait: Detecting and Preventing Clickbaits in Online News Media&#8217;</a> available <a href="https://github.com/bhargaviparanjape/clickbait">here</a>.</p>
+<p>Since the goal of this article is to illustrate transfer learning, we will directly load an already pre-processed dataset into a pandas&nbsp;dataframe.</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;http://bit.ly/clickbait-data&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>The dataset consists of page titles and labels. The label is 1 if the title is clickbait.
+<img alt="Rows of training data for clickbait detection" src="/images/clickbait-pandas-dataframe.png"></p>
+<p>Let&#8217;s split the data into 70% training data and 30% validation&nbsp;data.</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+
+<span class="n">x_train</span><span class="p">,</span> <span class="n">x_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">],</span> 
+                                                    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">],</span> 
+                                                    <span class="n">test_size</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> 
+                                                    <span class="n">stratify</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">],</span> 
+                                                    <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+</pre></div>
+
+
+<h2 id="model-architecture">Model&nbsp;Architecture</h2>
+<p>Now, we install tensorflow and tensorflow-hub using&nbsp;pip.</p>
+<div class="highlight"><pre><span></span>pip install tensorflow-hub
+pip install <span class="nv">tensorflow</span><span class="o">==</span><span class="m">2</span>.1.0
+</pre></div>
+
+
+<p>To use text data as features for models, we need to convert it into a numeric form. Tensorflow Hub provides various <a href="https://tfhub.dev/s?module-type=text-embedding&amp;q=tf2">modules</a> for converting the sentences into embeddings such as <span class="caps">BERT</span>, <span class="caps">NNLM</span> and&nbsp;Wikiwords.</p>
+<p>Universal Sentence Encoder is one of the popular module for generating sentence embeddings. It gives back a 512 fixed-size vector for the text.
+Below is an example of how we can use tensorflow hub to capture embeddings for the sentence &#8220;Hello&nbsp;World&#8221;.</p>
+<p><img alt="Universal Sentence Encoder applied on Hello World" src="/images/use-on-hello-world.png"></p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tensorflow_hub</span> <span class="kn">as</span> <span class="nn">hub</span>
+
+<span class="n">encoder</span> <span class="o">=</span> <span class="n">hub</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;https://tfhub.dev/google/universal-sentence-encoder/4&#39;</span><span class="p">)</span>
+<span class="n">encoder</span><span class="p">([</span><span class="s1">&#39;Hello World&#39;</span><span class="p">])</span>
+</pre></div>
+
+
+<p><img alt="Universal Sentence Encodings Output" src="/images/use-output.png"></p>
+<p>In Tensorflow 2.0, using these embeddings in our models is a piece of cake thanks to the new <a href="https://www.tensorflow.org/hub/api_docs/python/hub/KerasLayer">hub.KerasLayer</a> module. Let&#8217;s design a tf.keras model for the binary classification task of clickbait&nbsp;detection.</p>
+<p>First import the required&nbsp;libraries.</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tensorflow</span> <span class="kn">as</span> <span class="nn">tf</span>
+<span class="kn">import</span> <span class="nn">tensorflow_hub</span> <span class="kn">as</span> <span class="nn">hub</span>
+</pre></div>
+
+
+<p>Then, we create a sequential model that will encapsulate our&nbsp;layers.</p>
+<div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Sequential</span><span class="p">()</span>
+</pre></div>
+
+
+<p>The first layer will be a hub.KerasLayer from where we can loading models available at <a href="https://tfhub.dev/">tfhub.dev</a>. We will be loading <a href="https://tfhub.dev/google/universal-sentence-encoder/4">Universal Sentence Encoder</a>.</p>
+<div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">hub</span><span class="o">.</span><span class="n">KerasLayer</span><span class="p">(</span><span class="s1">&#39;https://tfhub.dev/google/universal-sentence-encoder/4&#39;</span><span class="p">,</span> 
+                        <span class="n">input_shape</span><span class="o">=</span><span class="p">[],</span> 
+                        <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">,</span> 
+                        <span class="n">trainable</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+</pre></div>
+
+
+<p>Here are what the different parameters used&nbsp;mean:</p>
+<ul>
+<li><code>/4</code>: It denotes the variant of Universal Sentence Encoder on hub. We&#8217;re using the <code>Deep Averaging Network (DAN)</code> variant. We also have <a href="https://tfhub.dev/google/universal-sentence-encoder-large/5">Transformer architecture</a> and other <a href="https://tfhub.dev/google/collections/universal-sentence-encoder/1">variants</a>. </li>
+<li><code>input_shape=[]</code>: Since our data has no features but the text itself, so there feature dimension is&nbsp;empty. </li>
+<li><code>dtype=tf.string</code>: Since we&#8217;ll be passing raw text itself to the&nbsp;model</li>
+<li><code>trainable=True</code>: Denotes whether we want to finetune <span class="caps">USE</span> or not. We set it to True, the embeddings present in <span class="caps">USE</span> are finetuned based on our downstream&nbsp;task.</li>
+</ul>
+<p>Next, we add a Dense layer with single node to output probability of clickbait between 0 and&nbsp;1.</p>
+<div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;sigmoid&#39;</span><span class="p">))</span>
+</pre></div>
+
+
+<p>In summary, we have a model that takes text data, projects it into 512-dimension embedding and passed that through a feedforward neural network with sigmoid activation to give a clickbait&nbsp;probability.</p>
+<p><img alt="Keras Model Architecture for Clickbait Detection" src="/images/clickbait-keras-model.png"></p>
+<p>Alternatively, we can implement the exact above architecture using the tf.keras functional <span class="caps">API</span> as&nbsp;well.</p>
+<div class="highlight"><pre><span></span><span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">[],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">hub</span><span class="o">.</span><span class="n">KerasLayer</span><span class="p">(</span><span class="s1">&#39;https://tfhub.dev/google/universal-sentence-encoder/4&#39;</span><span class="p">,</span> 
+                    <span class="n">trainable</span><span class="o">=</span><span class="bp">True</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">z</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;sigmoid&#39;</span><span class="p">)(</span><span class="n">y</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+</pre></div>
+
+
+<p>The output of the model summary&nbsp;is</p>
+<div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+</pre></div>
+
+
+<p><img alt="Model summary from Keras model" src="/images/clickbait-model-summary.png"></p>
+<p>The number of trainable parameters is <code>256,798,337</code> because we&#8217;re finetuning Universal Sentence&nbsp;Encoder.</p>
+<h2 id="training-the-model">Training the&nbsp;model</h2>
+<p>Since we&#8217;re performing a binary classification task, we use a binary cross entropy loss along with <span class="caps">ADAM</span> optimizer and accuracy as the&nbsp;metric.</p>
+<div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="s1">&#39;adam&#39;</span><span class="p">,</span> 
+              <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;binary_crossentropy&#39;</span><span class="p">,</span> 
+              <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;accuracy&#39;</span><span class="p">])</span>
+</pre></div>
+
+
+<p>Now, let&#8217;s train the model&nbsp;for </p>
+<div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> 
+          <span class="n">y_train</span><span class="p">,</span> 
+          <span class="n">epochs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> 
+          <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">))</span>
+</pre></div>
+
+
+<p>We reach a training accuracy of 99.62% and validation accuracy of 98.46% with only 2&nbsp;epochs.  </p>
+<h2 id="inference">Inference</h2>
+<p>Let&#8217;s test the model on a few&nbsp;examples.</p>
+<div class="highlight"><pre><span></span><span class="c1"># Clickbait</span>
+<span class="o">&gt;&gt;</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">([</span><span class="s2">&quot;21 Pictures That Will Make You Feel Like You&#39;re 99 Years Old&quot;</span><span class="p">])</span>
+<span class="n">array</span><span class="p">([[</span><span class="mf">0.9997924</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">float32</span><span class="p">)</span>
+
+<span class="c1"># Not Clickbait</span>
+<span class="o">&gt;&gt;</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">([</span><span class="s1">&#39;Google announces TensorFlow 2.0&#39;</span><span class="p">])</span>
+<span class="n">array</span><span class="p">([[</span><span class="mf">0.00022611</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">float32</span><span class="p">)</span>
+</pre></div>
+
+
+<h2 id="conclusion">Conclusion</h2>
+<p>Thus, with a combination of Tensorflow Hub and tf.keras, we can leverage transfer learning easily and build high-performance models for any of our downstream&nbsp;tasks.</p>
+<h2 id="data-credits">Data&nbsp;Credits</h2>
+<p><code>Abhijnan Chakraborty, Bhargavi Paranjape, Sourya Kakarla, and Niloy Ganguly. "Stop Clickbait: Detecting and Preventing Clickbaits in Online News Media”. In Proceedings of the 2016 IEEE/ACM International Conference on Advances in Social Networks Analysis and Mining (ASONAM), San Fransisco, US, August 2016</code></p></div>
+    <section>
+        <p id="post-share-links">
+            Share on:
+            <a href="https://twitter.com/intent/tweet?text=Transfer%20Learning%20in%20NLP%20with%20Tensorflow%20Hub%20and%C2%A0Keras&url=https%3A//amitness.com/2020/02/tensorflow-hub-for-transfer-learning/&via=amitness" target="_blank" title="Share on Twitter" style="color: #0084b4">Twitter</a>
+            |
+            <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A//amitness.com/2020/02/tensorflow-hub-for-transfer-learning/" target="_blank" title="Share on Facebook" style="color: #3B5998">Facebook</a>
+            |
+            <a href="mailto:?subject=Transfer%20Learning%20in%20NLP%20with%20Tensorflow%20Hub%20and%C2%A0Keras&amp;body=https%3A//amitness.com/2020/02/tensorflow-hub-for-transfer-learning/" target="_blank" title="Share via Email" style="color: #d34836">Email</a>
+        </p>
+    </section>
+    <div class="comments">
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+        var disqus_shortname = 'amit-chaudharys-blog';
+        var disqus_identifier = '2020/02/tensorflow-hub-for-transfer-learning/';
+        var disqus_url = 'https://amitness.com/2020/02/tensorflow-hub-for-transfer-learning/';
+        (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//amit-chaudharys-blog.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+      </script>
+      <noscript>Please enable JavaScript to view the comments.</noscript>
+    </div>
+
+  </article>
+</section>
+
+<script type="application/ld+json">
+  {"headline": "Transfer Learning in <span class=\"caps\">NLP</span> with Tensorflow Hub and&nbsp;Keras", "description": "Learn how to integrate and finetune tensorflow-hub modules in Tensorflow\u00a02.0", "datePublished": "2020-02-02T19:00:00+05:45", "@context": "http://schema.org", "@type": "BlogPosting", "author": {"@type": "Person", "name": "Amit Chaudhary"}, "mainEntityOfPage": {"@type": "WebPage", "@id": "https://amitness.com/2020/02/tensorflow-hub-for-transfer-learning/"}, "dateModified": "2020-02-02T19:00:00+05:45", "image": {"@type": "ImageObject", "url": "/images/clickbait-or-not-illustration.png"}, "articleSection": "nlp, tensorflow"}
+</script>
+    </div>
+
+    <div class="column is-one-quarter-desktop is-one-third-tablet is-hidden-print">
+      <aside class="menu">
+<div id="mc_embed_signup">
+    <form
+            action="https://feedburner.google.com/fb/a/mailverify"
+            method="post" id="mc-embedded-subscribe-form"
+            name="mc-embedded-subscribe-form" class="validate" target="popupwindow"
+            onsubmit="window.open('https://feedburner.google.com/fb/a/mailverify?uri=amitness', 'popupwindow', 'scrollbars=yes,width=550,height=520');return true">
+
+        <h2 class="menu-label">Mailing List</h2>
+
+        <div id="mc_embed_signup_scroll">
+            <div class="field mc-field-group">
+                <label for="mce-EMAIL" class="label is-small">Email</label>
+                <div class="field-body">
+                    <div class="field">
+                        <p class="control has-icons-left">
+                            <input type="text" name="email" class="input required email is-small"
+                                   id="mce-EMAIL" placeholder="Email address"/>
+                            <input type="hidden" value="amitness" name="uri"/>
+                            <input type="hidden" name="loc" value="en_US"/>
+                            <span class="icon is-small is-left">
+              <i class="fa fa-envelope"></i>
+            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="field is-grouped">
+                <p class="control">
+                    <input type="submit" name="subscribe" value="Subscribe"
+                           class="button is-small is-success" id="mc-embedded-subscribe">
+                <p>
+                </p>
+            </div>
+
+        </div>
+    </form>
+</div><p class="menu-label">Social</p>
+<ul class="menu-list">
+    <li><a href="https://github.com/amitness">
+      <span class="icon is-small">
+          <i class="fa fa-github fa-fw"></i>
+      </span>
+      <span class="link-text">GitHub</span>
+    </a></li>
+    <li><a href="https://twitter.com/amitness">
+      <span class="icon is-small">
+          <i class="fa fa-twitter fa-fw"></i>
+      </span>
+      <span class="link-text">Twitter</span>
+    </a></li>
+    <li><a href="https://np.linkedin.com/in/amitness">
+      <span class="icon is-small">
+          <i class="fa fa-linkedin fa-fw"></i>
+      </span>
+      <span class="link-text">Linkedin</span>
+    </a></li>
+    <li><a href="mailto:meamitkc@gmail.com">
+      <span class="icon is-small">
+          <i class="fa fa-envelope fa-fw"></i>
+      </span>
+      <span class="link-text">Email</span>
+    </a></li>
+    <li><a href="/atom.xml">
+      <span class="icon is-small">
+          <i class="fa fa-globe fa-fw"></i>
+      </span>
+      <span class="link-text">Feed</span>
+    </a></li>
+
+
+</ul>        <br>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Right Sidebar -->
+<ins class="adsbygoogle"
+    style="display:block"
+    data-ad-client="ca-pub-7848839318244183"
+    data-ad-slot="6944746094"
+    data-ad-format="auto"
+    data-full-width-responsive="true"></ins>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>      </aside>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container has-text-centered">
+    <div class="credits">
+      <span>Copyright &copy; 2020 Amit Chaudhary
+    </div>
+  </div>
+</footer>
+
+    <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-98232022-1']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = 'https://ssl.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+<script type="text/javascript">
+    var disqus_shortname = 'amit-chaudharys-blog';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'https://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+<script data-ad-client="ca-pub-7848839318244183" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script type="text/javascript">
+  document.getElementById('navToggle').addEventListener('click', function () {
+    var nav = document.getElementById('navMenu');
+    var className = nav.getAttribute('class');
+    if (className == 'navbar-menu') {
+      nav.className = 'navbar-menu is-active';
+    } else {
+      nav.className = 'navbar-menu';
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#">
+  <!-- Basic Metas -->
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width">
+  <meta name="google-site-verification" content="xETphZ5K1WItiUzH0YMRgZ8njDZlQMcGd_HD3zxGkuI" />
+  <meta name="p:domain_verify" content="907458af45983f47cfdffa284ee6ec03"/>
+  <title>Visual Paper Summary: ALBERT (A Lite BERT)</title>
+  <meta name="description" content="An illustrated summary of ALBERT paper.">
+  <meta name="author" content="Amit Chaudhary">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css">
+    <link rel="stylesheet" href="https://amitness.com/theme/css/main.2c65ebea.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" integrity="sha384-9tPv11A+glH/on/wEu99NVwDPwkMQESOocs/ZGXPoIiLE8MU/qkqUcZ3zzL+6DuH" crossorigin="anonymous">
+	<style>
+		.katex { font-size: 1.4em !important; }
+	</style>
+  <style media="print">.is-hidden-print{display:none !important}</style>
+<meta property="og:title" content="Visual Paper Summary: ALBERT (A Lite BERT)">
+  <meta property="og:description" content="An illustrated summary of ALBERT paper.">
+<meta property="og:url" content="https://amitness.com/2020/02/albert-visual-summary/">
+    <meta property="og:image" content="https://amitness.com/images/nlp-representation-learning.png">
+    <meta name="twitter:image:alt" content="Amit Chaudhary">
+<meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:creator" content="@amitness">
+  <meta name="twitter:site" content="@amitness">
+    <meta property="twitter:image" content="https://amitness.com/images/nlp-representation-learning.png">
+<meta property="og:site_name" content="Amit Chaudhary">
+<meta property="og:type" content="article">
+  <meta property="article:published_time" content="2020-02-08T22:00:00+05:45">
+  <meta property="article:modified_time" content="2020-02-08T22:00:00+05:45">
+  <meta property="article:section" content="nlp">
+</head>
+
+<body id="index" class="home">
+<header class="hero is-success">
+  <div class="hero-head">
+    <div class="container">
+      <nav class="navbar">
+        <div class="navbar-brand">
+          <a class="navbar-item title is-3"
+             href="https://amitness.com/">amitness</a>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<nav class="navbar has-shadow is-hidden-print">
+  <div class="container">
+    <div class="navbar-center"></div>
+    <span id="navToggle" class="navbar-burger">
+      <span></span>
+      <span></span>
+      <span></span>
+    </span>
+    <div id="navMenu" class="navbar-menu">
+        <div class="navbar-end">
+            <a class="navbar-item is-tab" href="/about/">about</a>
+            <a class="navbar-item is-tab" href="/archives">archive</a>
+            <a class="navbar-item is-tab" href="/contact/">contact</a>
+        </div>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="section columns">
+    <div class="column is-three-quarters-desktop is-two-thirds-tablet">
+<section id="content" class="body">
+  <article>
+    <h1 class="title">
+      <a href="https://amitness.com/2020/02/albert-visual-summary/" rel="bookmark"
+         title="Permalink to Visual Paper Summary: ALBERT (A Lite BERT)" class='article-title'>Visual Paper Summary: <span class="caps">ALBERT</span> (A Lite <span class="caps">BERT</span>)</a></h1>
+<footer class="post-info">
+  <abbr class="published" title="2020-02-08T22:00:00+05:45">
+    Published <span class="is-info">February 08, 2020</span>
+    in nlp
+  </abbr>
+
+</footer>    <div class="section"><p>Consider a sentence given below. As humans, when we encounter the word &#8220;<strong>apple</strong>&#8220;, we&nbsp;could: </p>
+<ul>
+<li>Associate the word &#8220;apple&#8221; to our mental representation of the fruit&nbsp;&#8220;apple&#8221;  </li>
+<li>Associate &#8220;apple&#8221; to the fruit rather than the company based on the&nbsp;context  </li>
+<li>Understand the big picture that &#8220;<em>he ate an apple</em>&#8221;  </li>
+<li>Understand it at character-level, word-level and&nbsp;sentence-level  </li>
+</ul>
+<p><img alt="Representations in Humans vs Machines" class="img-center" src="/images/nlp-representation-learning.png">    </p>
+<p>The basic premise of latest developments in <span class="caps">NLP</span> is to give machines the ability to learn such&nbsp;representations. </p>
+<p>In 2018, Google released <span class="caps">BERT</span> that attempted to learn representations based on a few novel&nbsp;ideas:</p>
+<h2 id="recap-bert">Recap:  <span class="caps">BERT</span></h2>
+<h3 id="1-masked-language-modeling">1. Masked Language&nbsp;Modeling</h3>
+<p>Language modeling basically involves predicting the word given its context as a way to learn representation. Tradionally, this involved predicting the next word in sentence given previous words.
+<img alt="Language Modeling in NLP" class="img-center" src="/images/nlp-language-model-1.png">  </p>
+<p><span class="caps">BERT</span> instead used a <strong>masked language model</strong> objective, in which we randomly mask words in document and try to predict them based on surrounding context.
+<img alt="Masked Language Model in BERT" class="img-center" src="/images/bert-masked-language-model.png"><br>
+<p class="has-text-centered">
+Credits: <a href="https://giphy.com/stickers/marvelstudios-oh-thanos-snapped-TfjfIgE9YUgdyz8V1J">Marvel Studios on&nbsp;Giphy</a>
+</p></p>
+<h3 id="2-next-sentence-prediction">2. Next Sentence&nbsp;Prediction</h3>
+<p>The idea with &#8220;Next Sentence Prediction&#8221; is to detect whether two sentences are coherent when placed one after another or not.
+<img alt="Next Sentence Prediction Task" class="img-center" src="/images/bert-nsp.png">  </p>
+<p>For this, consecutive sentences from the training data are used as a positive example. For negative example, some sentence is taken and a random sentence from another document is placed next to it. <span class="caps">BERT</span> model is trained on this task to identify if two sentences can occur next to each&nbsp;other.</p>
+<h3 id="3-transformer-architecture">3. Transformer&nbsp;Architecture</h3>
+<p>To solve the above two tasks, <span class="caps">BERT</span> uses stacked layers of transformer blocks as encoders. Word vectors are passed through the layers to capture the meaning and yeild a vector of size 768 for the base&nbsp;model.  </p>
+<p><img alt="Transformer Layers in BERT" src="/images/bert-blocks.png">
+Jay Alammar has an <a href="http://jalammar.github.io/illustrated-bert/">excellent post</a> that illustrates the internals of transformers in more&nbsp;depth.</p>
+<h2 id="problems-with-bert">Problems with <span class="caps">BERT</span></h2>
+<p><span class="caps">BERT</span>, when released, yielded state of art results on many <span class="caps">NLP</span> tasks on leaderboards. But, the model was very large in size which resulted in some issues. The &#8220;<span class="caps">ALBERT</span>&#8221; paper highlights these issues in two&nbsp;categories:  </p>
+<ol>
+<li>
+<p><strong>Memory Limitation and Communication Overhead:</strong><br>
+    Consider a simple neural network with one input node, two hidden nodes and a output node. Even such a simple neural network will have 7 parameters to learn due to weights and bias per node.<br>
+<img alt="Number of parameters in a neural network" class="img-center" src="/images/small-network-parameters.png">  </p>
+<p><span class="caps">BERT</span>-large, being a complex model, has 340 million parameters because of to its 24 hidden layers and lots of nodes in feed-forward network and attention heads. If you wanted to build upon the work on <span class="caps">BERT</span> and brings improvements to it, you would require large compute requirements to train from scratch and iterate on it.
+<img alt="BERT overload on GPU" class="img-center" src="/images/bert-heavy-on-gpu.png"><br>
+These compute requirements mainly involve GPUs and TPUs, but such devices have a memory limitation. So, there is a limit to the size of&nbsp;models.</p>
+<p>One popular approach to this problem in distributed training. Let&#8217;s take example of data parallelism on <span class="caps">BERT</span>-large, where training data is divided into two machines. The model is trained on two machines on chunks of data. As shown in the figure, you can notice how the large number of parameters to transfer during synchronization of gradients can slow down the training process. The same bottleneck applies for the model parallelism as well where we store different parts of the model(parameters) on different machines.
+<img alt="Communication Overhead in Distributed Training" class="img-center" src="/images/bert-communication-overhead.png"> 
+<p class="has-text-centered">
+    Figure: Communication overhead in distributed&nbsp;training
+</p></p>
+</li>
+<li>
+<p><strong>Model Degradation</strong><br>
+    Recent trend in the <span class="caps">NLP</span> research community is using larger and larger models to get state-of-the-art performance on leaderboards. <span class="caps">ALBERT</span> shows that that this can have diminishing&nbsp;returns.  </p>
+<p>In the paper, the authors performed an interesting&nbsp;experiment. </p>
+<blockquote>
+<p>If larger models lead to better performance, why not double the hidden layer units of the largest available <span class="caps">BERT</span> model(<span class="caps">BERT</span>-large) from 1024 units to 2048&nbsp;units? </p>
+</blockquote>
+<p>They call it &#8220;<span class="caps">BERT</span>-xlarge&#8221;. Surprisingly, the larger model actually performs worse than the <span class="caps">BERT</span>-large model on both Language Modeling task as well as when tested on a reading comprehension test (<span class="caps">RACE</span>).
+<img alt="BERT-xlarge vs BERT-large on RACE benchmark" src="/images/bert-doubled-performance-race.png"></p>
+<p>From the plots given in the original paper, we can see how the performance degrades. <span class="caps">BERT</span>-xlarge is performing worse than <span class="caps">BERT</span>-large even though it is larger in size and has more parameters.
+<img alt="Performance graph for BERT x-large vs large" src="/images/bert-xlarge-vs-bert-large.png">
+<p class="has-text-centered">
+    Credits: <span class="caps">ALBERT</span>&nbsp;paper
+</p></p>
+</li>
+</ol>
+<h2 id="from-bert-to-albert">From <span class="caps">BERT</span> to <span class="caps">ALBERT</span></h2>
+<p><span class="caps">ALBERT</span> attacks these problems by building upon on <span class="caps">BERT</span> with a few novel&nbsp;ideas:  </p>
+<ol>
+<li>
+<p><strong>Cross-layer parameter sharing</strong><br>
+    <span class="caps">BERT</span> large model had 24 layers while it&#8217;s base version had 12-layers. As we add more layers, we increase the number of parameters exponentially.<br>
+<img alt="Exponential increase in parameters for BERT" src="/images/bert-parameters.png"></p>
+<p>To solve this problem, <span class="caps">ALBERT</span> uses the concept of cross-layer parameter sharing. To illustrate, let&#8217;s see the example of 12-layer <span class="caps">BERT</span>-base model. Instead of learning unique parameters for each of the 12 layers, we only learn parameters for the first block, and reuse the block in the remaining 11&nbsp;layers.</p>
+<p><img alt="Parameter sharing in ALBERT" src="/images/albert-parameter-sharing.png"></p>
+<p>We can share parameter for either feed-forward layer only, the attention parameters only or share the parameters of the whole block itself. The paper shares the parameters for whole&nbsp;block.</p>
+<p>Compared to the 110 million paramters of <span class="caps">BERT</span>-base, the <span class="caps">ALBERT</span> model only has 31 million parameters while using the same number of layers and 768 hidden units. The effect on accuracy is minimal for embedding size of 128. Major drop in accuracy is due to feed-forward network parameter sharing. Effect of sharing attention parameters is minimal.
+<img alt="Reduction in parameters due to weight-sharing" src="/images/albert-parameter-sharing-results.png">
+<p class="has-text-centered">
+    Figure: Effect of cross-layer parameter strategy on&nbsp;performance
+</p></p>
+</li>
+<li>
+<p><strong>Sentence-Order Prediction (<span class="caps">SOP</span>)</strong> </p>
+<p><span class="caps">BERT</span> introduced a binary classification loss called &#8220;<strong>Next Sentence Prediction</strong>&#8220;. This was specifically created to improve performance on downstream tasks that use sentence pairs like &#8220;Natural Language Inference&#8221;. The basic process&nbsp;is:  </p>
+<ul>
+<li>Take two segments that appear consecutively from training&nbsp;corpus  </li>
+<li>Create a random pair of segment from different document as negative examples
+<img alt="Next Sentence Prediction Data Format" src="/images/nsp-training-data-generation.png"></li>
+</ul>
+<p>Papers like <a href="https://arxiv.org/abs/1907.11692"><span class="caps">ROBERTA</span></a> and <a href="https://arxiv.org/abs/1906.08237"><span class="caps">XLNET</span></a> have shed light on the ineffectiveness of <span class="caps">NSP</span> and found it&#8217;s impact on the downstream tasks unreliable. On eliminating the <span class="caps">NSP</span> task, the performance across several tasks&nbsp;improved.</p>
+<p>So, <span class="caps">ALBERT</span> proposes an alternative task called <strong>&#8220;Sentence Order Prediction&#8221;</strong>. The key idea&nbsp;is:  </p>
+<ul>
+<li>Take two consecutive segments from same document as positive&nbsp;class  </li>
+<li>Swap the order of the same segment and use that as negative example<br>
+<img alt="Sentence Order Prediction" src="/images/sentence-order-prediction.png"></li>
+</ul>
+<p>The forces the model to learn finer-grained distinction about discourse-level coherence&nbsp;properties.</p>
+<p><span class="caps">ALBERT</span> conjectures that <span class="caps">NSP</span> was ineffective because it&#8217;s not a difficult task when compared to masked language modeling. In a single task, it mixes both topic prediction and coherence prediction. The topic prediction part is easy to learn because it overlaps with the masked language model loss. Thus, <span class="caps">NSP</span> will give higher scores even when it hasn&#8217;t learned coherence&nbsp;prediction.</p>
+<p><span class="caps">SOP</span> improves performance on downstream multi-sentence encoding tasks (<span class="caps">SQUAD</span> 1.1, 2.0, <span class="caps">MNLI</span>, <span class="caps">SST</span>-2, <span class="caps">RACE</span>).
+<img alt="Sentence Order Prediction Impact" src="/images/sop-results-albert.png"></p>
+<p>Here we can see how model trained on <span class="caps">NSP</span> is only giving scores slightly better than random baseline on <span class="caps">SOP</span> task, but model trained on <span class="caps">SOP</span> can solve the <span class="caps">NSP</span> task quite effectively. This provides evidence that <span class="caps">SOP</span> leads to better learning&nbsp;representation.</p>
+</li>
+<li>
+<p><strong>Factorized embedding parameterization</strong> <br>
+    In <span class="caps">BERT</span>, the embeddings used (word piece embeddings) size was linked to the hidden layer sizes of the transformer blocks. Word piece embeddings learnt from the one hot encoding representations of a vocabulary of size 30,000 was used. These are projected directly to the hidden space of the hidden&nbsp;layer.  </p>
+<p>Let&#8217;s say we have a vocabulary of size 30K, word-piece embedding of dimension E=768 and hidden layer of size H=768. If we increase hidden units in the block, then we need to add a new dimension to each embedding as well. This problem is prevalent in <span class="caps">XLNET</span> and <span class="caps">ROBERTA</span> as well.
+<img alt="Factorized Embedding Parameterization" class="img-center" src="/images/bert-embedding.png"></p>
+<p><span class="caps">ALBERT</span> solves this problem by factorizing the large vocabulary embedding matrix into two smaller matrices. This separates the size of the hidden layers from the size of the vocabulary embeddings. This allows us to grow the hidden size without significantly increasing the parameter size of the vocabulary embeddings.
+<img alt="Decomposing Embeddings into factors" class="img-center" src="/images/embedding-decompose-albert.png"></p>
+<p>We project the One Hot Encoding vector into the lower dimension embedding space of E=100 and then this embedding space into the hidden space&nbsp;H=768.</p>
+</li>
+</ol>
+<h2 id="results">Results</h2>
+<ul>
+<li>18x fewer parameters than <span class="caps">BERT</span>-large</li>
+<li>Trained 1.7x&nbsp;faster</li>
+<li>Got <span class="caps">SOTA</span> results on <span class="caps">GLUE</span>, <span class="caps">RACE</span> and <span class="caps">SQUAD</span> during its release<ul>
+<li><span class="caps">RACE</span>: 89.4% [45.3%&nbsp;improvement]</li>
+<li><span class="caps">GLUE</span> Benchmark:&nbsp;89.4</li>
+<li><span class="caps">SQUAD</span> 2.0 F1-score:&nbsp;92.2</li>
+</ul>
+</li>
+</ul>
+<h2 id="conclusion">Conclusion</h2>
+<p><span class="caps">ALBERT</span> marks an important step towards building language models that not only get <span class="caps">SOTA</span> on the leaderboards but are also feasible for real-world&nbsp;applications.</p>
+<h2 id="citation-info-bibtex">Citation Info&nbsp;(BibTex)</h2>
+<p>If you found this blog post useful, please consider citing it&nbsp;as:</p>
+<div class="highlight"><pre><span></span>@misc{chaudhary2020albert,
+  title   = {Visual Paper Summary: ALBERT (A Lite BERT)},
+  author  = {Amit Chaudhary},
+  year    = 2020,
+  note    = {\url{https://amitness.com/2020/02/albert-visual-summary}}
+}
+</pre></div>
+
+
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://arxiv.org/pdf/1909.11942.pdf"><span class="caps">ALBERT</span>: A Lite <span class="caps">BERT</span> for Self-supervised Learning of Language&nbsp;Representations</a></li>
+</ul></div>
+    <section>
+        <p id="post-share-links">
+            Share on:
+            <a href="https://twitter.com/intent/tweet?text=Visual%20Paper%20Summary%3A%20ALBERT%20%28A%20Lite%20BERT%29&url=https%3A//amitness.com/2020/02/albert-visual-summary/&via=amitness" target="_blank" title="Share on Twitter" style="color: #0084b4">Twitter</a>
+            |
+            <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A//amitness.com/2020/02/albert-visual-summary/" target="_blank" title="Share on Facebook" style="color: #3B5998">Facebook</a>
+            |
+            <a href="mailto:?subject=Visual%20Paper%20Summary%3A%20ALBERT%20%28A%20Lite%20BERT%29&amp;body=https%3A//amitness.com/2020/02/albert-visual-summary/" target="_blank" title="Share via Email" style="color: #d34836">Email</a>
+        </p>
+    </section>
+    <div class="comments">
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+        var disqus_shortname = 'amit-chaudharys-blog';
+        var disqus_identifier = '2020/02/albert-visual-summary/';
+        var disqus_url = 'https://amitness.com/2020/02/albert-visual-summary/';
+        (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//amit-chaudharys-blog.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+      </script>
+      <noscript>Please enable JavaScript to view the comments.</noscript>
+    </div>
+
+  </article>
+</section>
+
+<script type="application/ld+json">
+  {"headline": "Visual Paper Summary: <span class=\"caps\">ALBERT</span> (A Lite <span class=\"caps\">BERT</span>)", "description": "An illustrated summary of ALBERT\u00a0paper.", "datePublished": "2020-02-08T22:00:00+05:45", "@context": "http://schema.org", "@type": "BlogPosting", "author": {"@type": "Person", "name": "Amit Chaudhary"}, "mainEntityOfPage": {"@type": "WebPage", "@id": "https://amitness.com/2020/02/albert-visual-summary/"}, "dateModified": "2020-02-08T22:00:00+05:45", "image": {"@type": "ImageObject", "url": "/images/nlp-representation-learning.png"}, "articleSection": "nlp"}
+</script>
+    </div>
+
+    <div class="column is-one-quarter-desktop is-one-third-tablet is-hidden-print">
+      <aside class="menu">
+<div id="mc_embed_signup">
+    <form
+            action="https://feedburner.google.com/fb/a/mailverify"
+            method="post" id="mc-embedded-subscribe-form"
+            name="mc-embedded-subscribe-form" class="validate" target="popupwindow"
+            onsubmit="window.open('https://feedburner.google.com/fb/a/mailverify?uri=amitness', 'popupwindow', 'scrollbars=yes,width=550,height=520');return true">
+
+        <h2 class="menu-label">Mailing List</h2>
+
+        <div id="mc_embed_signup_scroll">
+            <div class="field mc-field-group">
+                <label for="mce-EMAIL" class="label is-small">Email</label>
+                <div class="field-body">
+                    <div class="field">
+                        <p class="control has-icons-left">
+                            <input type="text" name="email" class="input required email is-small"
+                                   id="mce-EMAIL" placeholder="Email address"/>
+                            <input type="hidden" value="amitness" name="uri"/>
+                            <input type="hidden" name="loc" value="en_US"/>
+                            <span class="icon is-small is-left">
+              <i class="fa fa-envelope"></i>
+            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="field is-grouped">
+                <p class="control">
+                    <input type="submit" name="subscribe" value="Subscribe"
+                           class="button is-small is-success" id="mc-embedded-subscribe">
+                <p>
+                </p>
+            </div>
+
+        </div>
+    </form>
+</div><p class="menu-label">Social</p>
+<ul class="menu-list">
+    <li><a href="https://github.com/amitness">
+      <span class="icon is-small">
+          <i class="fa fa-github fa-fw"></i>
+      </span>
+      <span class="link-text">GitHub</span>
+    </a></li>
+    <li><a href="https://twitter.com/amitness">
+      <span class="icon is-small">
+          <i class="fa fa-twitter fa-fw"></i>
+      </span>
+      <span class="link-text">Twitter</span>
+    </a></li>
+    <li><a href="https://np.linkedin.com/in/amitness">
+      <span class="icon is-small">
+          <i class="fa fa-linkedin fa-fw"></i>
+      </span>
+      <span class="link-text">Linkedin</span>
+    </a></li>
+    <li><a href="mailto:meamitkc@gmail.com">
+      <span class="icon is-small">
+          <i class="fa fa-envelope fa-fw"></i>
+      </span>
+      <span class="link-text">Email</span>
+    </a></li>
+    <li><a href="/atom.xml">
+      <span class="icon is-small">
+          <i class="fa fa-globe fa-fw"></i>
+      </span>
+      <span class="link-text">Feed</span>
+    </a></li>
+
+
+</ul>        <br>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Right Sidebar -->
+<ins class="adsbygoogle"
+    style="display:block"
+    data-ad-client="ca-pub-7848839318244183"
+    data-ad-slot="6944746094"
+    data-ad-format="auto"
+    data-full-width-responsive="true"></ins>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>      </aside>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container has-text-centered">
+    <div class="credits">
+      <span>Copyright &copy; 2020 Amit Chaudhary
+    </div>
+  </div>
+</footer>
+
+    <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-98232022-1']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = 'https://ssl.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+<script type="text/javascript">
+    var disqus_shortname = 'amit-chaudharys-blog';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'https://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+<script data-ad-client="ca-pub-7848839318244183" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script type="text/javascript">
+  document.getElementById('navToggle').addEventListener('click', function () {
+    var nav = document.getElementById('navMenu');
+    var className = nav.getAttribute('class');
+    if (className == 'navbar-menu') {
+      nav.className = 'navbar-menu is-active';
+    } else {
+      nav.className = 'navbar-menu';
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#">
+  <!-- Basic Metas -->
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width">
+  <meta name="google-site-verification" content="xETphZ5K1WItiUzH0YMRgZ8njDZlQMcGd_HD3zxGkuI" />
+  <meta name="p:domain_verify" content="907458af45983f47cfdffa284ee6ec03"/>
+  <title>Back Translation for Text Augmentation with Google Sheets</title>
+  <meta name="description" content="Learn how to augment existing labeled text data for free using Google Sheets.">
+  <meta name="author" content="Amit Chaudhary">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css">
+    <link rel="stylesheet" href="https://amitness.com/theme/css/main.2c65ebea.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" integrity="sha384-9tPv11A+glH/on/wEu99NVwDPwkMQESOocs/ZGXPoIiLE8MU/qkqUcZ3zzL+6DuH" crossorigin="anonymous">
+	<style>
+		.katex { font-size: 1.4em !important; }
+	</style>
+  <style media="print">.is-hidden-print{display:none !important}</style>
+<meta property="og:title" content="Back Translation for Text Augmentation with Google Sheets">
+  <meta property="og:description" content="Learn how to augment existing labeled text data for free using Google Sheets.">
+<meta property="og:url" content="https://amitness.com/2020/02/back-translation-in-google-sheets/">
+    <meta property="og:image" content="https://amitness.com/images/backtranslation-en-fr.png">
+    <meta name="twitter:image:alt" content="Amit Chaudhary">
+<meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:creator" content="@amitness">
+  <meta name="twitter:site" content="@amitness">
+    <meta property="twitter:image" content="https://amitness.com/images/backtranslation-en-fr.png">
+<meta property="og:site_name" content="Amit Chaudhary">
+<meta property="og:type" content="article">
+  <meta property="article:published_time" content="2020-02-19T16:13:00+05:45">
+  <meta property="article:modified_time" content="2020-02-19T16:13:00+05:45">
+  <meta property="article:section" content="nlp">
+</head>
+
+<body id="index" class="home">
+<header class="hero is-success">
+  <div class="hero-head">
+    <div class="container">
+      <nav class="navbar">
+        <div class="navbar-brand">
+          <a class="navbar-item title is-3"
+             href="https://amitness.com/">amitness</a>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<nav class="navbar has-shadow is-hidden-print">
+  <div class="container">
+    <div class="navbar-center"></div>
+    <span id="navToggle" class="navbar-burger">
+      <span></span>
+      <span></span>
+      <span></span>
+    </span>
+    <div id="navMenu" class="navbar-menu">
+        <div class="navbar-end">
+            <a class="navbar-item is-tab" href="/about/">about</a>
+            <a class="navbar-item is-tab" href="/archives">archive</a>
+            <a class="navbar-item is-tab" href="/contact/">contact</a>
+        </div>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="section columns">
+    <div class="column is-three-quarters-desktop is-two-thirds-tablet">
+<section id="content" class="body">
+  <article>
+    <h1 class="title">
+      <a href="https://amitness.com/2020/02/back-translation-in-google-sheets/" rel="bookmark"
+         title="Permalink to Back Translation for Text Augmentation with Google Sheets" class='article-title'>Back Translation for Text Augmentation with Google&nbsp;Sheets</a></h1>
+<footer class="post-info">
+  <abbr class="published" title="2020-02-19T16:13:00+05:45">
+    Published <span class="is-info">February 19, 2020</span>
+    in nlp
+  </abbr>
+
+</footer>    <div class="section"><p>When working on Natural Language Processing applications such as Text Classification, collecting enough labeled examples for each category manually can be difficult. In this article, I will go over an interesting technique to augment your existing text data automatically called back&nbsp;translation.</p>
+<h2 id="introduction-to-back-translation">Introduction to Back&nbsp;Translation</h2>
+<p>The key idea of back translation is very simple. We create augmented version of a sentence using the following&nbsp;steps:</p>
+<ol>
+<li>You take the original text written in&nbsp;English  </li>
+<li>You convert it into another language (say French) using Google&nbsp;Translate  </li>
+<li>You convert the translated text back into English using Google&nbsp;Translate   </li>
+<li>Keep the augmented text if the original text and the back-translated text are&nbsp;different. </li>
+</ol>
+<p><img alt="Backtranslation with English and French" class="img-center" src="/images/backtranslation-en-fr.png">
+<p class="has-text-centered has-text-grey">
+Figure: Back&nbsp;Translation
+</p></p>
+<h2 id="using-back-translation-in-google-sheets">Using Back Translation in Google&nbsp;Sheets</h2>
+<p>We need a machine translation service to perform the translation to a different language and back to English. Google Translate is the most popular service for this purpose, but you need to get an <span class="caps">API</span> key to use it and it is a paid&nbsp;service. </p>
+<p>Luckily, Google provides a handy feature in their Google Sheets web app, which we can leverage for our&nbsp;purpose.</p>
+<h3 id="step-1-load-your-data">Step 1: Load your&nbsp;data</h3>
+<p>Let&#8217;s assume we are building a sentiment analysis model and our dataset has sentences and their associated labels. We can load it into Google Sheets by importing the Excel/<span class="caps">CSV</span> file directly.
+<img alt="Loading Files in Google Sheets" src="/images/backtranslation-sheets-step-1.png"></p>
+<h2 id="step-2-add-a-column-to-hold-augmented-data">Step 2: Add a column to hold augmented&nbsp;data</h2>
+<p>Add a new column and use the <code>GOOGLETRANSLATE()</code> function to translate from English to French and back to English.
+<img alt="Add column for translation" src="/images/backtranslation-sheets-step-2.png"></p>
+<p>The command to place in the column&nbsp;is</p>
+<div class="highlight"><pre><span></span><span class="o">=</span><span class="nx">GOOGLETRANSLATE</span><span class="p">(</span><span class="nx">GOOGLETRANSLATE</span><span class="p">(</span><span class="nx">A2</span><span class="p">,</span> <span class="s2">&quot;en&quot;</span><span class="p">,</span> <span class="s2">&quot;fr&quot;</span><span class="p">),</span> <span class="s2">&quot;fr&quot;</span><span class="p">,</span> <span class="s2">&quot;en&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Once the command is placed, press Enter and you will see the translation.
+<img alt="Run translation on cells" src="/images/backtranslation-sheets-step-2.2.png"></p>
+<p>Now, select the first cell of &#8220;Backtranslated&#8221; column and drag the small square at the bottom right side below to apply this formula over the whole column 
+<img alt="Drag translation to all cells" src="/images/backtranslation-sheets-step-2.3.png"></p>
+<p>This should apply to all your training texts and you will get back the augmented version.
+<img alt="Example of translated rows" src="/images/backtranslation-sheets-step-2.4.png"></p>
+<h2 id="step-3-filter-out-duplicated-data">Step 3: Filter out duplicated&nbsp;data</h2>
+<p>For texts where the original text and what get back from <code>back translation</code> are the same, we can filter them out programmatically by comparing the original text column and the augmented column. Then, only keep responses that have <code>True</code> value in the <code>Changed</code> column.
+<img alt="Filter out same translation" src="/images/backtranslation-sheets-step-3.2.png"></p>
+<h2 id="step-4-export-your-data">Step 4: Export your&nbsp;data</h2>
+<p>You can download your data as a <span class="caps">CSV</span> file and augment your existing training&nbsp;data.</p>
+<h2 id="example-sheet">Example&nbsp;Sheet</h2>
+<p>Here is a <a href="https://docs.google.com/spreadsheets/d/1pE9RAukrc4S9jf22RxVr_vEBqN9_DyZaRY8QQRek8Fs/edit#gid=2000059744">Google Sheet</a> demonstrating all the four steps above. You can refer to that and make a copy of it to test things&nbsp;out.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Back translation offers an interesting approach when you&#8217;ve small training data but want to improve the performance of your&nbsp;model.</p></div>
+    <section>
+        <p id="post-share-links">
+            Share on:
+            <a href="https://twitter.com/intent/tweet?text=Back%20Translation%20for%20Text%20Augmentation%20with%20Google%C2%A0Sheets&url=https%3A//amitness.com/2020/02/back-translation-in-google-sheets/&via=amitness" target="_blank" title="Share on Twitter" style="color: #0084b4">Twitter</a>
+            |
+            <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A//amitness.com/2020/02/back-translation-in-google-sheets/" target="_blank" title="Share on Facebook" style="color: #3B5998">Facebook</a>
+            |
+            <a href="mailto:?subject=Back%20Translation%20for%20Text%20Augmentation%20with%20Google%C2%A0Sheets&amp;body=https%3A//amitness.com/2020/02/back-translation-in-google-sheets/" target="_blank" title="Share via Email" style="color: #d34836">Email</a>
+        </p>
+    </section>
+    <div class="comments">
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+        var disqus_shortname = 'amit-chaudharys-blog';
+        var disqus_identifier = '2020/02/back-translation-in-google-sheets/';
+        var disqus_url = 'https://amitness.com/2020/02/back-translation-in-google-sheets/';
+        (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//amit-chaudharys-blog.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+      </script>
+      <noscript>Please enable JavaScript to view the comments.</noscript>
+    </div>
+
+  </article>
+</section>
+
+<script type="application/ld+json">
+  {"headline": "Back Translation for Text Augmentation with Google&nbsp;Sheets", "description": "Learn how to augment existing labeled text data for free using Google\u00a0Sheets.", "datePublished": "2020-02-19T16:13:00+05:45", "@context": "http://schema.org", "@type": "BlogPosting", "author": {"@type": "Person", "name": "Amit Chaudhary"}, "mainEntityOfPage": {"@type": "WebPage", "@id": "https://amitness.com/2020/02/back-translation-in-google-sheets/"}, "dateModified": "2020-02-19T16:13:00+05:45", "image": {"@type": "ImageObject", "url": "/images/backtranslation-en-fr.png"}, "articleSection": "nlp"}
+</script>
+    </div>
+
+    <div class="column is-one-quarter-desktop is-one-third-tablet is-hidden-print">
+      <aside class="menu">
+<div id="mc_embed_signup">
+    <form
+            action="https://feedburner.google.com/fb/a/mailverify"
+            method="post" id="mc-embedded-subscribe-form"
+            name="mc-embedded-subscribe-form" class="validate" target="popupwindow"
+            onsubmit="window.open('https://feedburner.google.com/fb/a/mailverify?uri=amitness', 'popupwindow', 'scrollbars=yes,width=550,height=520');return true">
+
+        <h2 class="menu-label">Mailing List</h2>
+
+        <div id="mc_embed_signup_scroll">
+            <div class="field mc-field-group">
+                <label for="mce-EMAIL" class="label is-small">Email</label>
+                <div class="field-body">
+                    <div class="field">
+                        <p class="control has-icons-left">
+                            <input type="text" name="email" class="input required email is-small"
+                                   id="mce-EMAIL" placeholder="Email address"/>
+                            <input type="hidden" value="amitness" name="uri"/>
+                            <input type="hidden" name="loc" value="en_US"/>
+                            <span class="icon is-small is-left">
+              <i class="fa fa-envelope"></i>
+            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="field is-grouped">
+                <p class="control">
+                    <input type="submit" name="subscribe" value="Subscribe"
+                           class="button is-small is-success" id="mc-embedded-subscribe">
+                <p>
+                </p>
+            </div>
+
+        </div>
+    </form>
+</div><p class="menu-label">Social</p>
+<ul class="menu-list">
+    <li><a href="https://github.com/amitness">
+      <span class="icon is-small">
+          <i class="fa fa-github fa-fw"></i>
+      </span>
+      <span class="link-text">GitHub</span>
+    </a></li>
+    <li><a href="https://twitter.com/amitness">
+      <span class="icon is-small">
+          <i class="fa fa-twitter fa-fw"></i>
+      </span>
+      <span class="link-text">Twitter</span>
+    </a></li>
+    <li><a href="https://np.linkedin.com/in/amitness">
+      <span class="icon is-small">
+          <i class="fa fa-linkedin fa-fw"></i>
+      </span>
+      <span class="link-text">Linkedin</span>
+    </a></li>
+    <li><a href="mailto:meamitkc@gmail.com">
+      <span class="icon is-small">
+          <i class="fa fa-envelope fa-fw"></i>
+      </span>
+      <span class="link-text">Email</span>
+    </a></li>
+    <li><a href="/atom.xml">
+      <span class="icon is-small">
+          <i class="fa fa-globe fa-fw"></i>
+      </span>
+      <span class="link-text">Feed</span>
+    </a></li>
+
+
+</ul>        <br>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Right Sidebar -->
+<ins class="adsbygoogle"
+    style="display:block"
+    data-ad-client="ca-pub-7848839318244183"
+    data-ad-slot="6944746094"
+    data-ad-format="auto"
+    data-full-width-responsive="true"></ins>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>      </aside>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container has-text-centered">
+    <div class="credits">
+      <span>Copyright &copy; 2020 Amit Chaudhary
+    </div>
+  </div>
+</footer>
+
+    <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-98232022-1']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = 'https://ssl.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+<script type="text/javascript">
+    var disqus_shortname = 'amit-chaudharys-blog';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'https://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+<script data-ad-client="ca-pub-7848839318244183" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script type="text/javascript">
+  document.getElementById('navToggle').addEventListener('click', function () {
+    var nav = document.getElementById('navMenu');
+    var className = nav.getAttribute('class');
+    if (className == 'navbar-menu') {
+      nav.className = 'navbar-menu is-active';
+    } else {
+      nav.className = 'navbar-menu';
+    }
+  });
+</script>
+</body>
+</html>

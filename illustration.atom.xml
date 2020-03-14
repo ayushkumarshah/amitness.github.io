@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Amit Chaudhary - illustration</title><link href="https://amitness.com/" rel="alternate"></link><link href="https://amitness.com/illustration.atom.xml" rel="self"></link><id>https://amitness.com/</id><updated>2020-03-04T10:00:00+05:45</updated><entry><title>The Illustrated SimCLR Framework</title><link href="https://amitness.com/2020/03/illustrated-simclr/" rel="alternate"></link><published>2020-03-04T10:00:00+05:45</published><updated>2020-03-04T10:00:00+05:45</updated><author><name>Amit Chaudhary</name></author><id>tag:amitness.com,2020-03-04:/2020/03/illustrated-simclr/</id><summary type="html">&lt;p&gt;A visual guide to the SimCLR framework for contrastive learning of visual&amp;nbsp;representations.&lt;/p&gt;</summary><content type="html">&lt;p&gt;In recent years, &lt;a href="https://amitness.com/2020/02/illustrated-self-supervised-learning/"&gt;numerous self-supervised learning methods&lt;/a&gt; have been proposed for learning image representations, each getting better than the previous. But, their performance was still below the supervised counterparts. This changed when &lt;strong&gt;Chen et. al&lt;/strong&gt; proposed a new framework in their research paper &amp;#8220;&lt;a href="https://arxiv.org/abs/2002.05709"&gt;SimCLR: A Simple Framework for Contrastive Learning of Visual Representations&lt;/a&gt;&amp;#8220;. The research paper not only improves upon the previous state-of-the-art self-supervised learning methods but also beats the supervised learning method on ImageNet&amp;nbsp;classification.&lt;/p&gt;
+&lt;p&gt;In this article, I will explain the key ideas of the framework proposed in the research paper using&amp;nbsp;diagrams.&lt;/p&gt;
+&lt;h2 id="the-nostalgic-intuition"&gt;The Nostalgic&amp;nbsp;Intuition&lt;/h2&gt;
+&lt;p&gt;As a kid, I remember we had to solve such puzzles in our textbook.&lt;br&gt;
+&lt;img alt="Find a Pair Exercise" class="img-center" src="/images/contrastive-find-a-pair.png"&gt;  &lt;br&gt;
+The way a child would solve it is by looking at the picture of the animal on the left side, know its a cat, then search for a cat on the right side.&lt;br&gt;
+&lt;img alt="Child Matching Animal Pairs" class="img-center" src="/images/contrastive-puzzle.gif"&gt;    &lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;span class="dquo"&gt;&amp;#8220;&lt;/span&gt;Such exercises were prepared for the child to be able to recognize an object and contrast that to other objects. Can we teach machines in a similar&amp;nbsp;manner?&amp;#8221;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;It turns out that we can through a technique called &lt;strong&gt;Contrastive Learning&lt;/strong&gt;. It attempts to teach machines to distinguish between similar and dissimilar things.
+&lt;img alt="Contrastive Learning Block" class="img-center" src="/images/simclr-contrastive-learning.png"&gt;&lt;/p&gt;
+&lt;h2 id="problem-formulation-for-machines"&gt;Problem Formulation for&amp;nbsp;Machines&lt;/h2&gt;
+&lt;p&gt;To model the above exercise for a machine instead of a child, we see that we require 3&amp;nbsp;things:  &lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Examples of similar and dissimilar images&lt;/strong&gt; &lt;br&gt;
+We would require example pairs of images that are similar and images that are different for training a model.&lt;br&gt;
+&lt;img alt="Pair of similar and dissimilar images" class="img-center" src="/images/contrastive-need-one.png"&gt;&lt;br&gt;
+The supervised school of thought would require a human to manually create such pairs. To automate this, we could leverage &lt;a href="https://amitness.com/2020/02/illustrated-self-supervised-learning/"&gt;self-supervised learning&lt;/a&gt;. But how do we formulate it?
+&lt;img alt="Manually Labeling pairs of Images" class="img-center" src="/images/contrastive-supervised-approach.png"&gt;&lt;br&gt;
+&lt;img alt="Self-supervised Approach to Labeling Images" class="img-center" src="/images/contrastive-self-supervised-approach.png"&gt;  &lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Ability to know what an image represents&lt;/strong&gt;&lt;br&gt;
+We need some mechanism to get representations that allow the machine to understand an image.
+&lt;img alt="Converting Image to Representations" class="img-center" src="/images/image-representation.png"&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Ability to quantify if two images are similar&lt;/strong&gt;&lt;br&gt;
+We need some mechanism to compute the similarity of two images. 
+&lt;img alt="Computing Similarity between Images" class="img-center" src="/images/image-similarity.png"&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id="the-simclr-framework-approach"&gt;The SimCLR Framework&amp;nbsp;Approach&lt;/h2&gt;
+&lt;p&gt;The paper proposes a framework &amp;#8220;&lt;strong&gt;SimCLR&lt;/strong&gt;&amp;#8221; for modeling the above problem in a self-supervised manner. It blends the concept of &lt;em&gt;Contrastive Learning&lt;/em&gt; with a few novel ideas to learn visual representations without human&amp;nbsp;supervision. &lt;/p&gt;
+&lt;h2 id="framework"&gt;Framework&lt;/h2&gt;
+&lt;p&gt;The framework, as the full-form suggests, is very simple. An image is taken and random transformations are applied to it to get a pair of two augmented images &lt;tt class="math"&gt;x_i&lt;/tt&gt; and &lt;tt class="math"&gt;x_j&lt;/tt&gt;. Each image in that pair is passed through an encoder to get representations. Then a non-linear fully connected layer is applied to get representations z. The task is to maximize the similarity between these two representations &lt;tt class="math"&gt;z_i&lt;/tt&gt; and &lt;tt class="math"&gt;z_j&lt;/tt&gt; for the same image.
+&lt;img alt="General Architecture of the SimCLR Framework" class="img-center" src="/images/simclr-general-architecture.png"&gt;&lt;/p&gt;
+&lt;h2 id="step-by-step-example"&gt;Step by Step&amp;nbsp;Example&lt;/h2&gt;
+&lt;p&gt;Let&amp;#8217;s explore the various components of the framework with an example. Suppose we have a training corpus of millions of unlabeled images.
+&lt;img alt="Corpus of millions of images" class="img-center" src="/images/simclr-raw-data.png"&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Self-supervised Formulation&lt;/strong&gt; [Data Augmentation]&lt;br&gt;
+First, we generate batches of size N from the raw images. Let&amp;#8217;s take a batch of size N = 2 for simplicity. In the paper, they use a large batch size of 8192.
+&lt;img alt="A single batch of images" class="img-center" src="/images/simclr-single-batch.png"&gt;  &lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;The paper defines a random transformation function T that takes an image and applies a combination of &lt;code&gt;random (crop + flip + color jitter + grayscale)&lt;/code&gt;.
+&lt;img alt="Random Augmentation on Image" class="img-center" src="/images/simclr-random-transformation-function.gif"&gt;  &lt;/p&gt;
+&lt;p&gt;For each image in this batch, random transformation function is applied to get a pairs of 2 images. Thus, for a batch size of 2, we get 2*N = 2*2 = 4 total images.&lt;br&gt;
+&lt;img alt="Augmenting images in a batch for SimCLR" class="img-center" src="/images/simclr-batch-data-preparation.png"&gt;&lt;br&gt;
+2. &lt;strong&gt;Getting Representations&lt;/strong&gt; [Base&amp;nbsp;Encoder]  &lt;/p&gt;
+&lt;p&gt;Each augmented image in a pair is passed through an encoder to get image representations. The encoder used is generic and replaceable with other architectures. The two encoders shown below have shared weights and we get vectors &lt;tt class="math"&gt;h_i&lt;/tt&gt; and &lt;tt class="math"&gt;h_j&lt;/tt&gt;.
+&lt;img alt="Encoder part of SimCLR" class="img-center" src="/images/simclr-encoder-part.png"&gt;&lt;/p&gt;
+&lt;p&gt;In the paper, the authors used &lt;a href="https://arxiv.org/abs/1512.03385"&gt;ResNet-50&lt;/a&gt; architecture as the ConvNet encoder. The output is a 2048-dimensional vector h.
+&lt;img alt="ResNet-50 as encoder in SimCLR" class="img-center" src="/images/simclr-paper-encoder.png"&gt;
+3. &lt;strong&gt;Projection Head&lt;/strong&gt;&lt;br&gt;
+The representations &lt;tt class="math"&gt;h_i&lt;/tt&gt; and &lt;tt class="math"&gt;h_j&lt;/tt&gt; of the two augmented images are then passed through a series of non-linear &lt;strong&gt;Dense -&amp;gt; Relu -&amp;gt; Dense&lt;/strong&gt; layers to apply non-linear transformation and project it into a representation &lt;tt class="math"&gt;z_i&lt;/tt&gt; and &lt;tt class="math"&gt;z_j&lt;/tt&gt;. This is denoted by &lt;tt class="math"&gt;g(.)&lt;/tt&gt; in the paper and called projection head.
+&lt;img alt="Projection Head Component of SimCLR" class="img-center" src="/images/simclr-projection-head-component.png"&gt;
+4. &lt;strong&gt;Tuning Model&lt;/strong&gt;: [Bringing similar closer]&lt;br&gt;
+Thus, for each augmented image in the batch, we get embedding vectors &lt;tt class="math"&gt;z&lt;/tt&gt; for it.
+&lt;img alt="Projecting image to embedding vectors" class="img-center" src="/images/simclr-projection-vectors.png"&gt;&lt;/p&gt;
+&lt;p&gt;From these embedding, we calculate the loss in following&amp;nbsp;steps:  &lt;/p&gt;
+&lt;p&gt;a. &lt;strong&gt;Calculation of Cosine&amp;nbsp;Similarity&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Now, the similarity between two augmented versions of an image is calculated using cosine similarity. For two augmented images &lt;tt class="math"&gt;x_i&lt;/tt&gt; and &lt;tt class="math"&gt;x_j&lt;/tt&gt;, the cosine similarity is calculated on its projected representations &lt;tt class="math"&gt;z_i&lt;/tt&gt; and &lt;tt class="math"&gt;z_j&lt;/tt&gt;.
+&lt;img alt="Cosine similarity between image embeddings" class="img-center" src="/images/simclr-cosine-similarity.png"&gt;&lt;/p&gt;
+&lt;pre class="math"&gt;
+s_{i,j} = \frac{ \textcolor{#ff7070}{z_{i}^{T}z_{j}} }{(\tau ||\textcolor{#ff7070}{z_{i}}|| ||\textcolor{#ff7070}{z_{j}}||)}
+&lt;/pre&gt;
+
+&lt;p&gt;where   &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;tt class="math"&gt;\tau&lt;/tt&gt; is the adjustable temperature parameter. It can scale the inputs and widen the range [-1, 1] of cosine&amp;nbsp;similarity.  &lt;/li&gt;
+&lt;li&gt;&lt;tt class="math"&gt;||z_{i}||&lt;/tt&gt; is the norm of the&amp;nbsp;vector&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The pairwise cosine similarity between each augmented image in a batch is calculated using the above formula. As shown in the figure, in an ideal case, the similarities between augmented images of cats will be high while the similarity between cat and elephant images will be lower.
+&lt;img alt="Pairwise cosine similarity between 4 images" class="img-center" src="/images/simclr-pairwise-similarity.png"&gt;&lt;/p&gt;
+&lt;p&gt;b. &lt;strong&gt;Loss Calculation&lt;/strong&gt;&lt;br&gt;
+SimCLR uses a contrastive loss called &amp;#8220;&lt;strong&gt;&lt;span class="caps"&gt;NT&lt;/span&gt;-Xent&lt;/strong&gt;&amp;#8221; (&lt;strong&gt;Normalized Temperature-Scaled Cross-Entropy Loss&lt;/strong&gt;). Let see intuitively how it&amp;nbsp;works.  &lt;/p&gt;
+&lt;p&gt;First, the augmented pairs in the batch are taken one by one.
+&lt;img alt="Example of a single batch in SimCLR" class="img-center" src="/images/simclr-augmented-pairs-batch.png"&gt;
+Next, we apply the softmax function to get the probability of these two images being similar.&lt;br&gt;
+&lt;img alt="Softmax Calculation on Image Similarities" src="/images/simclr-softmax-calculation.png"&gt;
+This softmax calculation is equivalent to getting the probability of the second augmented cat image being the most similar to the first cat image in the pair. Here, all remaining images in the batch are sampled as dissimilar image (negative pair). Thus, we don&amp;#8217;t need specialized architecture, memory bank or queue need by previous approaches like &lt;a href="https://arxiv.org/pdf/1805.01978.pdf"&gt;InstDisc&lt;/a&gt;, &lt;a href="https://arxiv.org/abs/1911.05722"&gt;MoCo&lt;/a&gt; or &lt;a href="https://arxiv.org/abs/1912.01991"&gt;&lt;span class="caps"&gt;PIRL&lt;/span&gt;&lt;/a&gt; 
+&lt;img alt="Interpretation of Softmax Function" class="img-center" src="/images/simclr-softmax-interpretation.png"&gt;&lt;/p&gt;
+&lt;p&gt;Then, the loss is calculated for a pair by taking the negative of the log of above calculation. This formulation is the Noise Contrastive Estimation(&lt;span class="caps"&gt;NCE&lt;/span&gt;) Loss.
+&lt;pre class="math"&gt;
+l(i, j) = -log\frac{exp(s_{i, j})}{ \sum_{k=1}^{2N} l_{[k!= i]} exp(s_{i, k})}
+&lt;/pre&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Calculation of Loss from softmax" src="/images/simclr-softmax-loss.png"&gt;&lt;/p&gt;
+&lt;p&gt;We calculate the loss for the same pair a second time as well where the positions of the images are interchanged.
+&lt;img alt="Calculation of loss for exchanged pairs of images" src="/images/simclr-softmax-loss-inverted.png"&gt;&lt;/p&gt;
+&lt;p&gt;Finally, we compute loss over all the pairs in the batch of size N=2 and take an average.
+&lt;pre class="math"&gt;
+L = \frac{1}{ 2\textcolor{#2196f3}{N} } \sum_{k=1}^{N} [l(2k-1, 2k) + l(2k, 2k-1)]
+&lt;/pre&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Total loss in SimCLR" src="/images/simclr-total-loss.png"&gt;&lt;/p&gt;
+&lt;p&gt;Based on the loss, the encoder and projection head representations improves over time and the representations obtained place similar images closer in the&amp;nbsp;space.&lt;/p&gt;
+&lt;h2 id="downstream-tasks"&gt;Downstream&amp;nbsp;Tasks&lt;/h2&gt;
+&lt;p&gt;Once the model is trained on the contrastive learning task, it can be used for transfer learning. In this, the representations from the encoder are used instead of representations obtained from the projection head. These representations can be used for downstream tasks like  ImageNet Classification.
+&lt;img alt="Using SimCLR for downstream tasks" src="/images/simclr-downstream.png"&gt;&lt;/p&gt;
+&lt;h2 id="objective-results"&gt;Objective&amp;nbsp;Results&lt;/h2&gt;
+&lt;p&gt;SimCLR outperformed previous self-supervised methods on ImageNet. The below image shows top-1 accuracy of linear classifiers trained on representations learned with different self-supervised methods on ImageNet. The gray cross is supervised ResNet50 and SimCLR is shown in bold.
+&lt;img alt="Performance of SimCLR on ImageNet" class="img-center" src="/images/simclr-performance.png"&gt;
+&lt;p class="has-text-centered"&gt;
+Source: &lt;a href="https://arxiv.org/abs/2002.05709"&gt;SimCLR&amp;nbsp;paper&lt;/a&gt;
+&lt;/p&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;On ImageNet &lt;a href="http://image-net.org/challenges/LSVRC/2012/"&gt;&lt;span class="caps"&gt;ILSVRC&lt;/span&gt;-2012&lt;/a&gt;, it achieves 76.5% top-1 accuracy which is 7% improvement over previous &lt;span class="caps"&gt;SOTA&lt;/span&gt; self-supervised method &lt;a href="https://arxiv.org/abs/1905.09272"&gt;Contrastive Predictive Coding&lt;/a&gt; and on-par with supervised&amp;nbsp;ResNet50.  &lt;/li&gt;
+&lt;li&gt;When trained on 1% of labels, it achieves 85.8% top-5 accuracy outperforming AlexNet with 100x fewer&amp;nbsp;labels&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;Thus, SimCLR provides a strong framework for doing further research in this direction and improve the state of self-supervised learning for Computer&amp;nbsp;Vision.&lt;/p&gt;
+&lt;h2 id="citation-info-bibtex"&gt;Citation Info&amp;nbsp;(BibTex)&lt;/h2&gt;
+&lt;p&gt;If you found this blog post useful, please consider citing it&amp;nbsp;as:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;@misc{chaudhary2020simclr,
+  title   = {The Illustrated SimCLR Framework},
+  author  = {Amit Chaudhary},
+  year    = 2020,
+  note    = {\url{https://amitness.com/2020/03/illustrated-simclr}}
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="references"&gt;References&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://arxiv.org/abs/2002.05709"&gt;&lt;span class="dquo"&gt;&amp;#8220;&lt;/span&gt;A Simple Framework for Contrastive Learning of Visual&amp;nbsp;Representations&amp;#8221;&lt;/a&gt;  &lt;/li&gt;
+&lt;li&gt;&lt;a href="https://arxiv.org/pdf/1706.04599.pdf"&gt;&lt;span class="dquo"&gt;&amp;#8220;&lt;/span&gt;On Calibration of Modern Neural&amp;nbsp;Networks&amp;#8221;&lt;/a&gt;  &lt;/li&gt;
+&lt;li&gt;&lt;a href="https://arxiv.org/pdf/1503.02531.pdf"&gt;&lt;span class="dquo"&gt;&amp;#8220;&lt;/span&gt;Distilling the Knowledge in a Neural&amp;nbsp;Network&amp;#8221;&lt;/a&gt;  &lt;/li&gt;
+&lt;/ul&gt;</content></entry><entry><title>The Illustrated Self-Supervised Learning</title><link href="https://amitness.com/2020/02/illustrated-self-supervised-learning/" rel="alternate"></link><published>2020-02-25T03:00:00+05:45</published><updated>2020-02-25T03:00:00+05:45</updated><author><name>Amit Chaudhary</name></author><id>tag:amitness.com,2020-02-25:/2020/02/illustrated-self-supervised-learning/</id><summary type="html">&lt;p&gt;A visual introduction to the patterns of problem formulation in self-supervised&amp;nbsp;learning.&lt;/p&gt;</summary><content type="html">&lt;p&gt;Yann Lecun, in his &lt;a href="https://www.youtube.com/watch?v=7I0Qt7GALVk&amp;amp;t=2639s"&gt;talk&lt;/a&gt;, introduced the &amp;#8220;cake analogy&amp;#8221; to illustrate the importance of self-supervised learning. Though the analogy is debated(&lt;a href="https://orfe.princeton.edu/~alaink/SmartDrivingCars/PDFs/2017_12_xx_NIPS-keynote-final.pdf"&gt;ref: Deep Learning for Robotics(Slide 96), Pieter Abbeel&lt;/a&gt;), we have seen the impact of self-supervised learning in the Natural Language Processing field where recent developments (Word2Vec, Glove, &lt;span class="caps"&gt;ELMO&lt;/span&gt;, &lt;span class="caps"&gt;BERT&lt;/span&gt;) have embraced self-supervision and achieved state of the art&amp;nbsp;results.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;“If intelligence is a cake, the bulk of the cake is self-supervised learning, the icing on the cake is supervised learning, and the cherry on the cake is reinforcement learning (&lt;span class="caps"&gt;RL&lt;/span&gt;).”  &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Curious to know how self-supervised learning has been applied in the computer vision field, I read up on existing literature on self-supervised learning applied to computer vision through a &lt;a href="https://arxiv.org/abs/1902.06162"&gt;recent survey paper&lt;/a&gt; by Jing et.&amp;nbsp;al. &lt;/p&gt;
+&lt;p&gt;This post is my attempt to provide an intuitive visual summary of the patterns of problem formulation in self-supervised&amp;nbsp;learning.&lt;/p&gt;
+&lt;h1 id="the-key-idea"&gt;The Key&amp;nbsp;Idea&lt;/h1&gt;
+&lt;p&gt;To apply supervised learning, we need enough labeled data. To acquire that, human annotators manually label data(images/text) which is both a time consuming and expensive process. There are also fields such as the medical field where getting enough data is a challenge&amp;nbsp;itself.&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Manual Annotation in Supervised Learning" src="/images/supervised-manual-annotation.png"&gt;&lt;/p&gt;
+&lt;p&gt;This is where self-supervised learning comes into play. It poses the following question to solve&amp;nbsp;this:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Can we design the task in such a way that we can generate virtually unlimited labels from our existing images and use that to learn the&amp;nbsp;representations?  &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;img alt="Automating manual labeling" class="img-center" src="/images/supervised-automated.png"&gt;&lt;/p&gt;
+&lt;p&gt;We replace the human annotation block by creatively exploiting some property of data to set up a supervised task. For example, here instead of labeling images as cat/dog, we could instead rotate them by 0/90/180/270 degrees and train a model to predict rotation. We can generate virtually unlimited training data from millions of images we have freely available.
+&lt;img alt="Self-supervised workflow diagram" class="img-center" src="/images/self-supervised-workflow.png"&gt;&lt;/p&gt;
+&lt;h1 id="existing-creative-approaches"&gt;Existing Creative&amp;nbsp;Approaches&lt;/h1&gt;
+&lt;p&gt;Below is a list of approaches various researchers have proposed to exploit image and video properties and learn representation in a self-supervised&amp;nbsp;manner.&lt;/p&gt;
+&lt;h1 id="learning-from-images"&gt;Learning from&amp;nbsp;Images&lt;/h1&gt;
+&lt;h2 id="1-image-colorization"&gt;1. &lt;strong&gt;Image&amp;nbsp;Colorization&lt;/strong&gt;&lt;/h2&gt;
+&lt;p&gt;Formulation:   &lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;What if we prepared pairs of (grayscale, colorized) images by applying grayscale to millions of images we have freely&amp;nbsp;available?  &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;img alt="Data Generation for Image Colorization" class="img-center" src="/images/ss-colorization-data-gen.png"&gt;  &lt;/p&gt;
+&lt;p&gt;We could use an encoder-decoder architecture based on a fully convolutional neural network and compute the L2 loss between the predicted and actual color&amp;nbsp;images.&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Architecture for Image Colorization" class="img-center" src="/images/ss-image-colorization.png"&gt;    &lt;/p&gt;
+&lt;p&gt;To solve this task, the model has to learn about different objects present in the image and related parts so that it can paint those parts in the same color. Thus, representations learned are useful for downstream tasks.
+&lt;img alt="Learning to colorize images" class="img-center" src="/images/ss-colorization-learning.png"&gt;  &lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Papers:&lt;/strong&gt;&lt;br&gt;
+&lt;a href="https://arxiv.org/abs/1603.08511"&gt;Colorful Image Colorization&lt;/a&gt; | &lt;a href="https://arxiv.org/abs/1705.02999"&gt;Real-Time User-Guided Image Colorization with Learned Deep Priors&lt;/a&gt; | &lt;a href="http://iizuka.cs.tsukuba.ac.jp/projects/colorization/en/"&gt;Let there be Color!: Joint End-to-end Learning of Global and Local Image Priors for Automatic Image Colorization with Simultaneous&amp;nbsp;Classification&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id="2-image-superresolution"&gt;2. &lt;strong&gt;Image&amp;nbsp;Superresolution&lt;/strong&gt;&lt;/h2&gt;
+&lt;p&gt;Formulation:   &lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;What if we prepared training pairs of (small, upscaled) images by downsampling millions of images we have freely&amp;nbsp;available?  &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;img alt="Training Data for Superresolution" class="img-center" src="/images/ss-superresolution-training-gen.png"&gt;  &lt;/p&gt;
+&lt;p&gt;&lt;span class="caps"&gt;GAN&lt;/span&gt; based models such as &lt;a href="https://arxiv.org/abs/1609.04802"&gt;&lt;span class="caps"&gt;SRGAN&lt;/span&gt;&lt;/a&gt; are popular for this task. A generator takes a low-resolution image and outputs a high-resolution image using a fully convolutional network. The actual and generated images are compared using both mean-squared-error and content loss to imitate human-like quality comparison. A binary-classification discriminator takes an image and classifies whether it&amp;#8217;s an actual high-resolution image(1) or a fake generated superresolution image(0). This interplay between the two models leads to generator learning to produce images with fine details. 
+&lt;img alt="Architecture for SRGAN" class="img-center" src="/images/ss-srgan-architecture.png"&gt;  &lt;/p&gt;
+&lt;p&gt;Both generator and discriminator learn semantic features that can be used for downstream&amp;nbsp;tasks.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Papers&lt;/strong&gt;:&lt;br&gt;
+&lt;a href="https://arxiv.org/abs/1609.04802"&gt;Photo-Realistic Single Image Super-Resolution Using a Generative Adversarial&amp;nbsp;Network&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id="3-image-inpainting"&gt;3. &lt;strong&gt;Image&amp;nbsp;Inpainting&lt;/strong&gt;&lt;/h2&gt;
+&lt;p&gt;Formulation:   &lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;What if we prepared training pairs of (corrupted, fixed) images by randomly removing part of&amp;nbsp;images?  &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;img alt="Training Data for Image Inpainting" class="img-center" src="/images/ss-image-inpainting-data-gen.png"&gt;  &lt;/p&gt;
+&lt;p&gt;Similar to superresolution, we can leverage a &lt;span class="caps"&gt;GAN&lt;/span&gt;-based architecture where the Generator can learn to reconstruct the image while discriminator separates real and generated images.
+&lt;img alt="Architecture for Image Inpainting" class="img-center" src="/images/ss-inpainting-architecture.png"&gt;  &lt;/p&gt;
+&lt;p&gt;For downstream tasks, &lt;a href="https://arxiv.org/abs/1604.07379"&gt;Pathak et al.&lt;/a&gt; have shown that semantic features learned by such a generator give 10.2% improvement over random initialization on the &lt;a href="http://host.robots.ox.ac.uk/pascal/VOC/voc2012/index.html"&gt;&lt;span class="caps"&gt;PASCAL&lt;/span&gt; &lt;span class="caps"&gt;VOC&lt;/span&gt; 2012&lt;/a&gt; semantic segmentation challenge while giving &amp;lt;4% improvements over classification and object&amp;nbsp;detection.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Papers&lt;/strong&gt;:&lt;br&gt;
+&lt;a href="https://arxiv.org/abs/1604.07379"&gt;Context encoders: Feature learning by&amp;nbsp;inpainting&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id="4-image-jigsaw-puzzle"&gt;4. &lt;strong&gt;Image Jigsaw&amp;nbsp;Puzzle&lt;/strong&gt;&lt;/h2&gt;
+&lt;p&gt;Formulation:   &lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;What if we prepared training pairs of (shuffled, ordered) puzzles by randomly shuffling patches of&amp;nbsp;images?  &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;img alt="Training Data For Image Jigsaw Puzzle" class="img-center" src="/images/ss-image-jigsaw-data.png"&gt;  &lt;/p&gt;
+&lt;p&gt;Even with only 9 patches, there can be 362880 possible puzzles. To overcome this, only a subset of possible permutations is used such as 64 permutations with the highest hamming distance.
+&lt;img alt="Number of Permutations in Image Jigsaw" class="img-center" src="/images/ss-jigsaw-permutations.png"&gt;&lt;/p&gt;
+&lt;p&gt;Suppose we use a permutation that changes the image as shown below. Let&amp;#8217;s use the permutation number 64 from our total available 64 permutations.
+&lt;img alt="Example of single permutation in jigsaw" class="img-center" src="/images/ss-jigsaw-permutation-64.png"&gt;&lt;/p&gt;
+&lt;p&gt;Now, to recover back the original patches, &lt;a href="https://arxiv.org/abs/1603.09246"&gt;Noroozi et al.&lt;/a&gt;
+ proposed a neural network called context-free network (&lt;span class="caps"&gt;CFN&lt;/span&gt;) as shown below. Here, the individual patches are passed through the same siamese convolutional layers that have shared weights. Then, the features are combined in a fully-connected layer. In the output, the model has to predict which permutation was used from the 64 possible classes. If we know the permutation, we can solve the puzzle.
+&lt;img alt="Architecture for Image Jigsaw Task" class="img-center" src="/images/ss-jigsaw-architecture.png"&gt;&lt;/p&gt;
+&lt;p&gt;To solve the Jigsaw puzzle, the model needs to learn to identify how parts are assembled in an object, relative positions of different parts of objects and shape of objects. Thus, the representations are useful for downstream tasks in classification and&amp;nbsp;detection.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Papers&lt;/strong&gt;:&lt;br&gt;
+&lt;a href="https://arxiv.org/abs/1603.09246"&gt;Unsupervised learning of visual representations by solving jigsaw&amp;nbsp;puzzles&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id="5-context-prediction"&gt;5. &lt;strong&gt;Context&amp;nbsp;Prediction&lt;/strong&gt;&lt;/h2&gt;
+&lt;p&gt;Formulation:   &lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;What if we prepared training pairs of (image-patch, neighbor) by randomly taking an image patch and one of its neighbors around it from large, unlabeled image&amp;nbsp;collection?  &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;img alt="Training Data for Context Prediction" class="img-center" src="/images/ss-context-prediction-gen.png"&gt;  &lt;/p&gt;
+&lt;p&gt;To solve this pre-text task, &lt;a href="https://arxiv.org/abs/1505.05192"&gt;Doersch et al.&lt;/a&gt; used an architecture similar to that of a jigsaw puzzle. We pass the patches through two siamese ConvNets to extract features, concatenate the features and do a classification over 8 classes denoting the 8 possible neighbor positions.
+&lt;img alt="Architecture for Context Prediction" class="img-center" src="/images/ss-context-prediction-architecture.png"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Papers&lt;/strong&gt;:&lt;br&gt;
+&lt;a href="https://arxiv.org/abs/1505.05192"&gt;Unsupervised Visual Representation Learning by Context&amp;nbsp;Prediction&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id="6-geometric-transformation-recognition"&gt;6. &lt;strong&gt;Geometric Transformation&amp;nbsp;Recognition&lt;/strong&gt;&lt;/h2&gt;
+&lt;p&gt;Formulation:   &lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;What if we prepared training pairs of (rotated-image, rotation-angle) by randomly rotating images by (0, 90, 180, 270) from large, unlabeled image&amp;nbsp;collection?  &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;img alt="Training Data for Geometric Transformation" class="img-center" src="/images/ss-geometric-transformation-gen.png"&gt;  &lt;/p&gt;
+&lt;p&gt;To solve this pre-text task, &lt;a href="https://arxiv.org/abs/1505.05192"&gt;Gidaris et al.&lt;/a&gt; propose an architecture where a rotated image is passed through a ConvNet and the network has to classify it into 4 classes(0/90/270/360 degrees).
+&lt;img alt="Architecture for Geometric Transformation Predction" class="img-center" src="/images/ss-geometric-transformation-architecture.png"&gt;&lt;/p&gt;
+&lt;p&gt;Though a very simple idea, the model has to understand location, types and pose of objects in an image to solve this task and as such, the representations learned are useful for downstream&amp;nbsp;tasks.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Papers&lt;/strong&gt;:&lt;br&gt;
+&lt;a href="https://arxiv.org/abs/1803.07728"&gt;Unsupervised Representation Learning by Predicting Image&amp;nbsp;Rotations&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id="7-image-clustering"&gt;7. &lt;strong&gt;Image&amp;nbsp;Clustering&lt;/strong&gt;&lt;/h2&gt;
+&lt;p&gt;Formulation:   &lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;What if we prepared training pairs of (image, cluster-number) by performing clustering on large, unlabeled image&amp;nbsp;collection?  &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;img alt="Training Data for Image Clustering" class="img-center" src="/images/ss-image-clustering-gen.png"&gt;  &lt;/p&gt;
+&lt;p&gt;To solve this pre-text task, &lt;a href="https://arxiv.org/abs/1807.05520"&gt;Caron et al.&lt;/a&gt; propose an architecture called deep clustering. Here, the images are first clustered and the clusters are used as classes. The task of the ConvNet is to predict the cluster label for an input image.
+&lt;img alt="Architecture for Deep Clustering" class="img-center" src="/images/ss-deep-clustering-architecture.png"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Papers&lt;/strong&gt;:&lt;br&gt;
+&lt;a href="https://arxiv.org/abs/1807.05520"&gt;Deep clustering for unsupervised learning of visual&amp;nbsp;features&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id="8-synthetic-imagery"&gt;8. &lt;strong&gt;Synthetic&amp;nbsp;Imagery&lt;/strong&gt;&lt;/h2&gt;
+&lt;p&gt;Formulation:   &lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;What if we prepared training pairs of (image, properties) by generating synthetic images using game engines and adapting it to real&amp;nbsp;images?  &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;img alt="Training Data for Sythetic Imagery" class="img-center" src="/images/synthetic-imagery-data.png"&gt;  &lt;/p&gt;
+&lt;p&gt;To solve this pre-text task, &lt;a href="https://arxiv.org/pdf/1711.09082.pdf"&gt;Ren et al.&lt;/a&gt; propose an architecture where weight-shared ConvNets are trained on both synthetic and real images and then a discriminator learns to classify whether ConvNet features fed to it is of a synthetic image or a real image. Due to adversarial nature, the shared representations between real and synthetic images get better.
+&lt;img alt="Architecture for Synthetic Image Training" class="img-center" src="/images/ss-synthetic-image-architecture.png"&gt;&lt;/p&gt;
+&lt;h1 id="learning-from-videos"&gt;Learning from&amp;nbsp;Videos&lt;/h1&gt;
+&lt;h2 id="1-frame-order-verification"&gt;1. &lt;strong&gt;Frame Order&amp;nbsp;Verification&lt;/strong&gt;&lt;/h2&gt;
+&lt;p&gt;Formulation:   &lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;What if we prepared training pairs of (video frames, correct/incorrect order) by shuffling frames from videos of objects in&amp;nbsp;motion?   &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;img alt="Training Data for Video Order" class="img-center" src="/images/ss-frame-order-data-gen.png"&gt;  &lt;/p&gt;
+&lt;p&gt;To solve this pre-text task, &lt;a href="https://arxiv.org/pdf/1711.09082.pdf"&gt;Misra et al.&lt;/a&gt; propose an architecture where video frames are passed through weight-shared ConvNets and the model has to figure out whether the frames are in the correct order or not. In doing so, the model learns not just spatial features but also takes into account temporal features.
+&lt;img alt="Architecture for Frame Order Verification" class="img-center" src="/images/ss-temporal-order-architecture.png"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Papers&lt;/strong&gt;:&lt;br&gt;
+&lt;a href="https://arxiv.org/abs/1603.08561"&gt;Shuffle and Learn: Unsupervised Learning using Temporal Order&amp;nbsp;Verification&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id="citation-info-bibtex"&gt;Citation Info&amp;nbsp;(BibTex)&lt;/h2&gt;
+&lt;p&gt;If you found this blog post useful, please consider citing it&amp;nbsp;as:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;@misc{chaudhary2020selfsupervised,
+  title   = {The Illustrated Self-Supervised Learning},
+  author  = {Amit Chaudhary},
+  year    = 2020,
+  note    = {\url{https://amitness.com/2020/02/illustrated-self-supervised-learning}}
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="references"&gt;References&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Jing, et al. “&lt;a href="https://arxiv.org/abs/1902.06162"&gt;Self-Supervised Visual Feature Learning with Deep Neural Networks: A Survey.&lt;/a&gt;”&lt;/li&gt;
+&lt;/ul&gt;</content></entry></feed>

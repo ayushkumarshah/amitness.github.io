@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#">
+  <!-- Basic Metas -->
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width">
+  <meta name="google-site-verification" content="xETphZ5K1WItiUzH0YMRgZ8njDZlQMcGd_HD3zxGkuI" />
+  <meta name="p:domain_verify" content="907458af45983f47cfdffa284ee6ec03"/>
+  <title>Illustrated Guide to Recurrent Layers in Keras</title>
+  <meta name="description" content="Understand how to use Recurrent Layers in Keras with diagrams.">
+  <meta name="author" content="Amit Chaudhary">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css">
+    <link rel="stylesheet" href="https://amitness.com/theme/css/main.2c65ebea.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" integrity="sha384-9tPv11A+glH/on/wEu99NVwDPwkMQESOocs/ZGXPoIiLE8MU/qkqUcZ3zzL+6DuH" crossorigin="anonymous">
+	<style>
+		.katex { font-size: 1.4em !important; }
+	</style>
+  <style media="print">.is-hidden-print{display:none !important}</style>
+<meta property="og:title" content="Illustrated Guide to Recurrent Layers in Keras">
+  <meta property="og:description" content="Understand how to use Recurrent Layers in Keras with diagrams.">
+<meta property="og:url" content="https://amitness.com/drafts/illustrated-lstm-keras.html">
+    <meta property="og:image" content="https://amitness.com/images/rnn-necessity.png">
+    <meta name="twitter:image:alt" content="Amit Chaudhary">
+<meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:creator" content="@amitness">
+  <meta name="twitter:site" content="@amitness">
+    <meta property="twitter:image" content="https://amitness.com/images/rnn-necessity.png">
+<meta property="og:site_name" content="Amit Chaudhary">
+<meta property="og:type" content="article">
+  <meta property="article:published_time" content="2020-03-07T03:00:00+05:45">
+  <meta property="article:modified_time" content="2020-03-07T03:00:00+05:45">
+  <meta property="article:section" content="nlp">
+</head>
+
+<body id="index" class="home">
+<header class="hero is-success">
+  <div class="hero-head">
+    <div class="container">
+      <nav class="navbar">
+        <div class="navbar-brand">
+          <a class="navbar-item title is-3"
+             href="https://amitness.com/">amitness</a>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<nav class="navbar has-shadow is-hidden-print">
+  <div class="container">
+    <div class="navbar-center"></div>
+    <span id="navToggle" class="navbar-burger">
+      <span></span>
+      <span></span>
+      <span></span>
+    </span>
+    <div id="navMenu" class="navbar-menu">
+        <div class="navbar-end">
+            <a class="navbar-item is-tab" href="/about/">about</a>
+            <a class="navbar-item is-tab" href="/archives">archive</a>
+            <a class="navbar-item is-tab" href="/contact/">contact</a>
+        </div>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="section columns">
+    <div class="column is-three-quarters-desktop is-two-thirds-tablet">
+<section id="content" class="body">
+  <article>
+    <h1 class="title">
+      <a href="https://amitness.com/drafts/illustrated-lstm-keras.html" rel="bookmark"
+         title="Permalink to Illustrated Guide to Recurrent Layers in Keras" class='article-title'>Illustrated Guide to Recurrent Layers in&nbsp;Keras</a></h1>
+<footer class="post-info">
+  <abbr class="published" title="2020-03-07T03:00:00+05:45">
+    Published <span class="is-info">March 07, 2020</span>
+    in nlp
+  </abbr>
+
+</footer>    <div class="section"><p>From the realm of simple feed-forward networks, when I first came across sequence modeling architectures such as <span class="caps">RNN</span>, <span class="caps">GRU</span> and <span class="caps">LSTM</span>, I was intrigued by how simple but powerful they&nbsp;were.</p>
+<p>However, when it came to leveraging them using frameworks like Keras, there were many roadblocks ranging from not understanding how to formulate a problem using the available layers to input shape&nbsp;issues. </p>
+<p>Having learnt these things the hard way, I&#8217;ve built a mental model now to design architectures with sequence model on various problems. This post is an attempt to make these mental model concrete for others. The mental model rests on this idea of being able to visualize how the inputs and outputs pass from these&nbsp;units.</p>
+<p>In this post, I will be explaining the mental model through the lens of Natural Language Processing to make the examples&nbsp;intuitive.</p>
+<h2 id="the-core-purpose">The Core&nbsp;Purpose</h2>
+<p>Let&#8217;s say we have some text and you want to apply machine learning on it. We know models only understand numeric data, so we need some way to convert it into numeric form. We can leverage word vector technique to get the numeric form (embeddings) for the words.
+<img alt="Necessity of RNN" class="img-center" src="/images/rnn-necessity.png">  <br>
+We see above how the sentence as a whole is negative because of the presence of the word &#8220;<strong>not</strong>&#8221; before &#8220;<strong>good</strong>&#8220;. We would want our <span class="caps">ML</span> models such that previous words are taken into account when processing the current word. Thus, we need a concept of state/memory. That&#8217;s where <span class="caps">RNN</span>&nbsp;shines.</p>
+<h2 id="rnns-in-keras">RNNs in&nbsp;Keras</h2>
+<p>Let&#8217;s take a simple example of encoding a sentence using <span class="caps">RNN</span> layer in&nbsp;Keras.</p>
+<p><img alt="I am Groot Sentence" class="img-center" src="/images/i-am-groot-sentence.png">
+<p class="has-text-centered">
+Credits: Marvel&nbsp;Studios
+</p></p>
+<p>To use this sentence in a <span class="caps">RNN</span>, we need to convert it into numeric form. Let&#8217;s consider we have a simplified embedding algorithm that takes a word and convert each word into 2&nbsp;numbers.</p>
+<p><img alt="" class="img-center" src="/images/i-am-groot-embedding.png"></p>
+<p>Now, to pass these words into a <span class="caps">RNN</span>, we treat each word as time-step and the embedding as it&#8217;s features. Let&#8217;s build a <span class="caps">RNN</span> layer to pass these&nbsp;into</p>
+<div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">()</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">SimpleRNN</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
+</pre></div>
+
+
+<p>To understand what each parameter means, refer to the figure below and how each parameter is linked to that.
+<img alt="" src="/images/rnn-default-keras.png">  </p>
+<ul>
+<li><strong>input_shape=(3, 2)</strong>:  <ul>
+<li>We have 3 words &#8220;<strong>I</strong>&#8220;, &#8220;<strong>am</strong>&#8220;, &#8220;<strong>groot</strong>&#8220;. Thus, number(time-steps) = number(words) = 3. The <span class="caps">RNN</span> block unfolds 3 times, and so we see 3 blocks in the&nbsp;figure.</li>
+<li>Each word is represented by embedding of size&nbsp;2</li>
+<li>So input_shape=(3,&nbsp;2).</li>
+</ul>
+</li>
+<li><strong>SimpleRNN(<code>4, ...</code>)</strong>:  <ul>
+<li>This denotes the number of units in the hidden&nbsp;layer</li>
+<li>Here we set 4 hidden&nbsp;units</li>
+<li>So, in the figure, we see how a hidden state of size 4 is passed between the <span class="caps">RNN</span>&nbsp;blocks</li>
+<li>For the first block, since there is no previous output, so previous hidden state is set to <strong>[0, 0, 0,&nbsp;0]</strong></li>
+</ul>
+</li>
+</ul>
+<h2 id="stacking-layers">Stacking&nbsp;Layers</h2>
+<div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">()</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">SimpleRNN</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">return_sequences</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">SimpleRNN</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+</pre></div>
+
+
+<p><img alt="" class="img-center" src="/images/rnn-stacked.png"></p>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://keras.io/layers/recurrent/">Recurrent Layers - Keras&nbsp;Documentation</a></li>
+</ul></div>
+
+  </article>
+</section>
+
+<script type="application/ld+json">
+  {"headline": "Illustrated Guide to Recurrent Layers in&nbsp;Keras", "description": "Understand how to use Recurrent Layers in Keras with\u00a0diagrams.", "datePublished": "2020-03-07T03:00:00+05:45", "@context": "http://schema.org", "@type": "BlogPosting", "author": {"@type": "Person", "name": "Amit Chaudhary"}, "mainEntityOfPage": {"@type": "WebPage", "@id": "https://amitness.com/drafts/illustrated-lstm-keras.html"}, "dateModified": "2020-03-07T03:00:00+05:45", "image": {"@type": "ImageObject", "url": "/images/rnn-necessity.png"}, "articleSection": "nlp"}
+</script>
+    </div>
+
+    <div class="column is-one-quarter-desktop is-one-third-tablet is-hidden-print">
+      <aside class="menu">
+<div id="mc_embed_signup">
+    <form
+            action="https://feedburner.google.com/fb/a/mailverify"
+            method="post" id="mc-embedded-subscribe-form"
+            name="mc-embedded-subscribe-form" class="validate" target="popupwindow"
+            onsubmit="window.open('https://feedburner.google.com/fb/a/mailverify?uri=amitness', 'popupwindow', 'scrollbars=yes,width=550,height=520');return true">
+
+        <h2 class="menu-label">Mailing List</h2>
+
+        <div id="mc_embed_signup_scroll">
+            <div class="field mc-field-group">
+                <label for="mce-EMAIL" class="label is-small">Email</label>
+                <div class="field-body">
+                    <div class="field">
+                        <p class="control has-icons-left">
+                            <input type="text" name="email" class="input required email is-small"
+                                   id="mce-EMAIL" placeholder="Email address"/>
+                            <input type="hidden" value="amitness" name="uri"/>
+                            <input type="hidden" name="loc" value="en_US"/>
+                            <span class="icon is-small is-left">
+              <i class="fa fa-envelope"></i>
+            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="field is-grouped">
+                <p class="control">
+                    <input type="submit" name="subscribe" value="Subscribe"
+                           class="button is-small is-success" id="mc-embedded-subscribe">
+                <p>
+                </p>
+            </div>
+
+        </div>
+    </form>
+</div><p class="menu-label">Social</p>
+<ul class="menu-list">
+    <li><a href="https://github.com/amitness">
+      <span class="icon is-small">
+          <i class="fa fa-github fa-fw"></i>
+      </span>
+      <span class="link-text">GitHub</span>
+    </a></li>
+    <li><a href="https://twitter.com/amitness">
+      <span class="icon is-small">
+          <i class="fa fa-twitter fa-fw"></i>
+      </span>
+      <span class="link-text">Twitter</span>
+    </a></li>
+    <li><a href="https://np.linkedin.com/in/amitness">
+      <span class="icon is-small">
+          <i class="fa fa-linkedin fa-fw"></i>
+      </span>
+      <span class="link-text">Linkedin</span>
+    </a></li>
+    <li><a href="mailto:meamitkc@gmail.com">
+      <span class="icon is-small">
+          <i class="fa fa-envelope fa-fw"></i>
+      </span>
+      <span class="link-text">Email</span>
+    </a></li>
+    <li><a href="/atom.xml">
+      <span class="icon is-small">
+          <i class="fa fa-globe fa-fw"></i>
+      </span>
+      <span class="link-text">Feed</span>
+    </a></li>
+
+
+</ul>        <br>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Right Sidebar -->
+<ins class="adsbygoogle"
+    style="display:block"
+    data-ad-client="ca-pub-7848839318244183"
+    data-ad-slot="6944746094"
+    data-ad-format="auto"
+    data-full-width-responsive="true"></ins>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>      </aside>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container has-text-centered">
+    <div class="credits">
+      <span>Copyright &copy; 2020 Amit Chaudhary
+    </div>
+  </div>
+</footer>
+
+    <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-98232022-1']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = 'https://ssl.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+<script type="text/javascript">
+    var disqus_shortname = 'amit-chaudharys-blog';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'https://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+<script data-ad-client="ca-pub-7848839318244183" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script type="text/javascript">
+  document.getElementById('navToggle').addEventListener('click', function () {
+    var nav = document.getElementById('navMenu');
+    var className = nav.getAttribute('class');
+    if (className == 'navbar-menu') {
+      nav.className = 'navbar-menu is-active';
+    } else {
+      nav.className = 'navbar-menu';
+    }
+  });
+</script>
+</body>
+</html>

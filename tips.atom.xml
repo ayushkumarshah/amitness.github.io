@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Amit Chaudhary - tips</title><link href="https://amitness.com/" rel="alternate"></link><link href="https://amitness.com/tips.atom.xml" rel="self"></link><id>https://amitness.com/</id><updated>2016-10-17T08:00:00+05:45</updated><entry><title>Shutdown Ubuntu With A Keyboard Shortcut</title><link href="https://amitness.com/2015/06/ubuntu-keyboard-shortcut/" rel="alternate"></link><published>2015-06-16T08:00:00+05:45</published><updated>2016-10-17T08:00:00+05:45</updated><author><name>Amit Chaudhary</name></author><id>tag:amitness.com,2015-06-16:/2015/06/ubuntu-keyboard-shortcut/</id><summary type="html">&lt;p&gt;In Windows, we can use Alt+F4 keyboard shortcut to shutdown. But Linux doesn’t have such feature out of the box. After switching to Ubuntu, I struggled trying to make a keyboard shortcut for shutting down the&amp;nbsp;computer.&lt;/p&gt;</summary><content type="html">&lt;p&gt;In Windows, we can use Alt+F4 keyboard shortcut to shutdown. But Linux doesn’t have such feature out of the box. After switching to Ubuntu, I struggled trying to make a keyboard shortcut for shutting down the&amp;nbsp;computer. &lt;/p&gt;
+&lt;p&gt;So I started reading about the packages related to shutdown and discovered a method that works flawlessly. We utilize a package called &lt;em&gt;shutdown&lt;/em&gt; that’s present by default in the /sbin&amp;nbsp;directory.&lt;/p&gt;
+&lt;h2 id="steps"&gt;Steps:&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Open a terminal and enter the following command.  You will be asked for the&amp;nbsp;password.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo chmod u+s /sbin/shutdown
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;Then goto System Settings &amp;gt; Keyboard and in the shortcuts tab, click Custom&amp;nbsp;Shortcuts&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img alt="Keyboard Shortcuts" class="img-center" src="/images/keyboard-shortcuts.png"&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Then click the “Add custom shortcut” button and a popup will open. In it add name as &lt;em&gt;“Shutdown”&lt;/em&gt; and command as &lt;strong&gt;“shutdown -h now”&lt;/strong&gt; . Then click&amp;nbsp;add.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img alt="Custom Shortcut Menu" class="img-center" src="/images/custom-shortcut.png"&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;After adding, you will get a list of shortcuts as shown below. In that click shutdown and below it, there will be three unassigned. Click the first unassigned and it will change into &lt;em&gt;“Pick an accelerator“&lt;/em&gt;. Then click &lt;code&gt;Ctrl+Alt+K&lt;/code&gt; at the same time. This will be our shortcut for&amp;nbsp;shutdown.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img alt="Key Binding Menu" class="img-center" src="/images/keyboard-binding.png"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Tip&lt;/strong&gt;: You can make a shortcut for restart as well, follow the same tutorial except in step 3, use code &lt;em&gt;shutdown &lt;strong&gt;-r&lt;/strong&gt; now&lt;/em&gt;&amp;nbsp;.&lt;/p&gt;
+&lt;p&gt;You have a fully functioning keyboard shortcut to shutdown Linux just like Windows. Press Ctrl+Alt+K and your system is off. Please let me know if it worked for you in the&amp;nbsp;comments.&lt;/p&gt;</content><category term="ubuntu"></category><category term="keyboard shortcut"></category><category term="linux"></category></entry><entry><title>How to Reduce Data Usage While Browsing Internet</title><link href="https://amitness.com/2015/06/save-data/" rel="alternate"></link><published>2015-06-15T08:00:00+05:45</published><updated>2016-10-14T08:00:00+05:45</updated><author><name>Amit Chaudhary</name></author><id>tag:amitness.com,2015-06-15:/2015/06/save-data/</id><summary type="html">&lt;p&gt;According to the &lt;span class="caps"&gt;HTTP&lt;/span&gt; Archive, the average webpage size has increased by 50 % per year. When you don’t have unlimited internet, using the Internet without crossing data cap seems an impossible task. But you can browse the web consuming less&amp;nbsp;data.&lt;/p&gt;</summary><content type="html">&lt;p&gt;According to the &lt;span class="caps"&gt;HTTP&lt;/span&gt; Archive, the average webpage size has increased by 50 % per year. When you don’t have unlimited internet, using the Internet without crossing data cap seems an impossible task. But you can browse the web consuming less&amp;nbsp;data.&lt;/p&gt;
+&lt;p&gt;I use a volume based Internet connection of 40 &lt;span class="caps"&gt;GB&lt;/span&gt; per month. I follow some methods to reduce the data consumption while using&amp;nbsp;Internet. &lt;/p&gt;
+&lt;h3 id="steps"&gt;&lt;span class="caps"&gt;STEPS&lt;/span&gt;:&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;1.&amp;nbsp;Browser:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Let’s start with the browser. The browser is our gateway to the Internet. I use Google Chrome as my primary internet browser. Google has an official extension for Chrome that compresses the data for &lt;span class="caps"&gt;HTTP&lt;/span&gt; websites so that it becomes faster and uses less data. The extension is called &lt;em&gt;Data Saver&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;Download it from &lt;a href="https://chrome.google.com/webstore/detail/data-saver-beta/pfmgfdlgomnbgkofeojodiodmgpgmkac?hl=en"&gt;here&lt;/a&gt; and once added, you should see a icon added beside the menu in chrome. Click it and select Turn on data saver&amp;nbsp;.&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Data Saver Screenshot 1" class="img-center" src="https://lh4.googleusercontent.com/4-Up5b6TS1Egr7MPHPUPj-T5thIUnuDV_HP15AgoS0laHv7nITjhZsOg9PlCOHLvCZjJWj4R9g=s640-h400-e365-rw"&gt;
+&lt;img alt="Data Saver Screenshot 2" class="img-center" src="https://lh5.googleusercontent.com/xVLJ1HZBbggSQtOuU1Cz4wn8AM22y7lNec07j9oFTwCIBU0mfUDXbGeaDlA6urfe-WhVuizZCQ=s640-h400-e365-rw"&gt;&lt;/p&gt;
+&lt;p&gt;From now on, Chrome should start compressing the site elements and images by passing them through google servers. In my testing, I saved up to 20% data in a&amp;nbsp;month. &lt;/p&gt;
+&lt;p&gt;Note: &lt;em&gt;This doesn’t work on secure pages and in incognito&amp;nbsp;mode.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;2. YouTube&amp;nbsp;Settings:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;There is a hidden setting in YouTube that plays videos in 360p quality by default. 360p is both clear as well as data friendly quality for watching&amp;nbsp;video.&lt;/p&gt;
+&lt;p&gt;To access the setting, go to https://www.youtube.com/account_playback and tick “I have a slow connection. Never play higher-quality video.” in Video playback quality. From now on, Videos will default to&amp;nbsp;360p.&lt;/p&gt;
+&lt;p&gt;Also, YouTube has an experimental video player that uses &lt;span class="caps"&gt;HTML5&lt;/span&gt; instead of Flash to play videos. It can play videos with an average bandwidth reduction of 35 percent. To enable it, go to TestTube and on the bottom, click “Get the player” under Try out the Redesigned YouTube&amp;nbsp;Player.&lt;/p&gt;
+&lt;p&gt;&lt;img alt="YouTube HTML5 Player" class="img-center" src="/images/youtube_player1.png"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;3. Run Plugins on&amp;nbsp;Demand:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Chrome automatically plays flash ads and videos leading to higher data usage. You can stop this&amp;nbsp;behaviour.&lt;/p&gt;
+&lt;p&gt;Go to settings through menu and then&amp;nbsp;select &lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Show advanced settings &amp;gt; Privacy &amp;gt; Content settings. &amp;gt; Plug-ins &amp;gt; Click to&amp;nbsp;play &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;From now on, video advertisement won’t be played automatically, thus saving a lot of&amp;nbsp;data.&lt;/p&gt;
+&lt;p&gt;I hope these tips will help you lower data usage and be under your data cap. If you have any other tips, do leave them as&amp;nbsp;comments.&lt;/p&gt;</content><category term="chrome"></category><category term="data usage"></category></entry></feed>

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#">
+  <!-- Basic Metas -->
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width">
+  <meta name="google-site-verification" content="xETphZ5K1WItiUzH0YMRgZ8njDZlQMcGd_HD3zxGkuI" />
+  <meta name="p:domain_verify" content="907458af45983f47cfdffa284ee6ec03"/>
+  <title>The Illustrated Self-Supervised Learning</title>
+  <meta name="description" content="A visual introduction to the patterns of problem formulation in self-supervised learning.">
+  <meta name="author" content="Amit Chaudhary">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css">
+    <link rel="stylesheet" href="https://amitness.com/theme/css/main.2c65ebea.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" integrity="sha384-9tPv11A+glH/on/wEu99NVwDPwkMQESOocs/ZGXPoIiLE8MU/qkqUcZ3zzL+6DuH" crossorigin="anonymous">
+	<style>
+		.katex { font-size: 1.4em !important; }
+	</style>
+  <style media="print">.is-hidden-print{display:none !important}</style>
+<meta property="og:title" content="The Illustrated Self-Supervised Learning">
+  <meta property="og:description" content="A visual introduction to the patterns of problem formulation in self-supervised learning.">
+<meta property="og:url" content="https://amitness.com/2020/02/illustrated-self-supervised-learning/">
+    <meta property="og:image" content="https://amitness.com/images/supervised-manual-annotation.png">
+    <meta name="twitter:image:alt" content="Amit Chaudhary">
+<meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:creator" content="@amitness">
+  <meta name="twitter:site" content="@amitness">
+    <meta property="twitter:image" content="https://amitness.com/images/supervised-manual-annotation.png">
+<meta property="og:site_name" content="Amit Chaudhary">
+<meta property="og:type" content="article">
+  <meta property="article:published_time" content="2020-02-25T03:00:00+05:45">
+  <meta property="article:modified_time" content="2020-02-25T03:00:00+05:45">
+  <meta property="article:section" content="illustration">
+</head>
+
+<body id="index" class="home">
+<header class="hero is-success">
+  <div class="hero-head">
+    <div class="container">
+      <nav class="navbar">
+        <div class="navbar-brand">
+          <a class="navbar-item title is-3"
+             href="https://amitness.com/">amitness</a>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<nav class="navbar has-shadow is-hidden-print">
+  <div class="container">
+    <div class="navbar-center"></div>
+    <span id="navToggle" class="navbar-burger">
+      <span></span>
+      <span></span>
+      <span></span>
+    </span>
+    <div id="navMenu" class="navbar-menu">
+        <div class="navbar-end">
+            <a class="navbar-item is-tab" href="/about/">about</a>
+            <a class="navbar-item is-tab" href="/archives">archive</a>
+            <a class="navbar-item is-tab" href="/contact/">contact</a>
+        </div>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="section columns">
+    <div class="column is-three-quarters-desktop is-two-thirds-tablet">
+<section id="content" class="body">
+  <article>
+    <h1 class="title">
+      <a href="https://amitness.com/2020/02/illustrated-self-supervised-learning/" rel="bookmark"
+         title="Permalink to The Illustrated Self-Supervised Learning" class='article-title'>The Illustrated Self-Supervised&nbsp;Learning</a></h1>
+<footer class="post-info">
+  <abbr class="published" title="2020-02-25T03:00:00+05:45">
+    Published <span class="is-info">February 25, 2020</span>
+    in illustration
+  </abbr>
+
+</footer>    <div class="section"><p>Yann Lecun, in his <a href="https://www.youtube.com/watch?v=7I0Qt7GALVk&amp;t=2639s">talk</a>, introduced the &#8220;cake analogy&#8221; to illustrate the importance of self-supervised learning. Though the analogy is debated(<a href="https://orfe.princeton.edu/~alaink/SmartDrivingCars/PDFs/2017_12_xx_NIPS-keynote-final.pdf">ref: Deep Learning for Robotics(Slide 96), Pieter Abbeel</a>), we have seen the impact of self-supervised learning in the Natural Language Processing field where recent developments (Word2Vec, Glove, <span class="caps">ELMO</span>, <span class="caps">BERT</span>) have embraced self-supervision and achieved state of the art&nbsp;results.</p>
+<blockquote>
+<p>“If intelligence is a cake, the bulk of the cake is self-supervised learning, the icing on the cake is supervised learning, and the cherry on the cake is reinforcement learning (<span class="caps">RL</span>).”  </p>
+</blockquote>
+<p>Curious to know how self-supervised learning has been applied in the computer vision field, I read up on existing literature on self-supervised learning applied to computer vision through a <a href="https://arxiv.org/abs/1902.06162">recent survey paper</a> by Jing et.&nbsp;al. </p>
+<p>This post is my attempt to provide an intuitive visual summary of the patterns of problem formulation in self-supervised&nbsp;learning.</p>
+<h1 id="the-key-idea">The Key&nbsp;Idea</h1>
+<p>To apply supervised learning, we need enough labeled data. To acquire that, human annotators manually label data(images/text) which is both a time consuming and expensive process. There are also fields such as the medical field where getting enough data is a challenge&nbsp;itself.</p>
+<p><img alt="Manual Annotation in Supervised Learning" src="/images/supervised-manual-annotation.png"></p>
+<p>This is where self-supervised learning comes into play. It poses the following question to solve&nbsp;this:</p>
+<blockquote>
+<p>Can we design the task in such a way that we can generate virtually unlimited labels from our existing images and use that to learn the&nbsp;representations?  </p>
+</blockquote>
+<p><img alt="Automating manual labeling" class="img-center" src="/images/supervised-automated.png"></p>
+<p>We replace the human annotation block by creatively exploiting some property of data to set up a supervised task. For example, here instead of labeling images as cat/dog, we could instead rotate them by 0/90/180/270 degrees and train a model to predict rotation. We can generate virtually unlimited training data from millions of images we have freely available.
+<img alt="Self-supervised workflow diagram" class="img-center" src="/images/self-supervised-workflow.png"></p>
+<h1 id="existing-creative-approaches">Existing Creative&nbsp;Approaches</h1>
+<p>Below is a list of approaches various researchers have proposed to exploit image and video properties and learn representation in a self-supervised&nbsp;manner.</p>
+<h1 id="learning-from-images">Learning from&nbsp;Images</h1>
+<h2 id="1-image-colorization">1. <strong>Image&nbsp;Colorization</strong></h2>
+<p>Formulation:   </p>
+<blockquote>
+<p>What if we prepared pairs of (grayscale, colorized) images by applying grayscale to millions of images we have freely&nbsp;available?  </p>
+</blockquote>
+<p><img alt="Data Generation for Image Colorization" class="img-center" src="/images/ss-colorization-data-gen.png">  </p>
+<p>We could use an encoder-decoder architecture based on a fully convolutional neural network and compute the L2 loss between the predicted and actual color&nbsp;images.</p>
+<p><img alt="Architecture for Image Colorization" class="img-center" src="/images/ss-image-colorization.png">    </p>
+<p>To solve this task, the model has to learn about different objects present in the image and related parts so that it can paint those parts in the same color. Thus, representations learned are useful for downstream tasks.
+<img alt="Learning to colorize images" class="img-center" src="/images/ss-colorization-learning.png">  </p>
+<p><strong>Papers:</strong><br>
+<a href="https://arxiv.org/abs/1603.08511">Colorful Image Colorization</a> | <a href="https://arxiv.org/abs/1705.02999">Real-Time User-Guided Image Colorization with Learned Deep Priors</a> | <a href="http://iizuka.cs.tsukuba.ac.jp/projects/colorization/en/">Let there be Color!: Joint End-to-end Learning of Global and Local Image Priors for Automatic Image Colorization with Simultaneous&nbsp;Classification</a></p>
+<h2 id="2-image-superresolution">2. <strong>Image&nbsp;Superresolution</strong></h2>
+<p>Formulation:   </p>
+<blockquote>
+<p>What if we prepared training pairs of (small, upscaled) images by downsampling millions of images we have freely&nbsp;available?  </p>
+</blockquote>
+<p><img alt="Training Data for Superresolution" class="img-center" src="/images/ss-superresolution-training-gen.png">  </p>
+<p><span class="caps">GAN</span> based models such as <a href="https://arxiv.org/abs/1609.04802"><span class="caps">SRGAN</span></a> are popular for this task. A generator takes a low-resolution image and outputs a high-resolution image using a fully convolutional network. The actual and generated images are compared using both mean-squared-error and content loss to imitate human-like quality comparison. A binary-classification discriminator takes an image and classifies whether it&#8217;s an actual high-resolution image(1) or a fake generated superresolution image(0). This interplay between the two models leads to generator learning to produce images with fine details. 
+<img alt="Architecture for SRGAN" class="img-center" src="/images/ss-srgan-architecture.png">  </p>
+<p>Both generator and discriminator learn semantic features that can be used for downstream&nbsp;tasks.</p>
+<p><strong>Papers</strong>:<br>
+<a href="https://arxiv.org/abs/1609.04802">Photo-Realistic Single Image Super-Resolution Using a Generative Adversarial&nbsp;Network</a></p>
+<h2 id="3-image-inpainting">3. <strong>Image&nbsp;Inpainting</strong></h2>
+<p>Formulation:   </p>
+<blockquote>
+<p>What if we prepared training pairs of (corrupted, fixed) images by randomly removing part of&nbsp;images?  </p>
+</blockquote>
+<p><img alt="Training Data for Image Inpainting" class="img-center" src="/images/ss-image-inpainting-data-gen.png">  </p>
+<p>Similar to superresolution, we can leverage a <span class="caps">GAN</span>-based architecture where the Generator can learn to reconstruct the image while discriminator separates real and generated images.
+<img alt="Architecture for Image Inpainting" class="img-center" src="/images/ss-inpainting-architecture.png">  </p>
+<p>For downstream tasks, <a href="https://arxiv.org/abs/1604.07379">Pathak et al.</a> have shown that semantic features learned by such a generator give 10.2% improvement over random initialization on the <a href="http://host.robots.ox.ac.uk/pascal/VOC/voc2012/index.html"><span class="caps">PASCAL</span> <span class="caps">VOC</span> 2012</a> semantic segmentation challenge while giving &lt;4% improvements over classification and object&nbsp;detection.</p>
+<p><strong>Papers</strong>:<br>
+<a href="https://arxiv.org/abs/1604.07379">Context encoders: Feature learning by&nbsp;inpainting</a></p>
+<h2 id="4-image-jigsaw-puzzle">4. <strong>Image Jigsaw&nbsp;Puzzle</strong></h2>
+<p>Formulation:   </p>
+<blockquote>
+<p>What if we prepared training pairs of (shuffled, ordered) puzzles by randomly shuffling patches of&nbsp;images?  </p>
+</blockquote>
+<p><img alt="Training Data For Image Jigsaw Puzzle" class="img-center" src="/images/ss-image-jigsaw-data.png">  </p>
+<p>Even with only 9 patches, there can be 362880 possible puzzles. To overcome this, only a subset of possible permutations is used such as 64 permutations with the highest hamming distance.
+<img alt="Number of Permutations in Image Jigsaw" class="img-center" src="/images/ss-jigsaw-permutations.png"></p>
+<p>Suppose we use a permutation that changes the image as shown below. Let&#8217;s use the permutation number 64 from our total available 64 permutations.
+<img alt="Example of single permutation in jigsaw" class="img-center" src="/images/ss-jigsaw-permutation-64.png"></p>
+<p>Now, to recover back the original patches, <a href="https://arxiv.org/abs/1603.09246">Noroozi et al.</a>
+ proposed a neural network called context-free network (<span class="caps">CFN</span>) as shown below. Here, the individual patches are passed through the same siamese convolutional layers that have shared weights. Then, the features are combined in a fully-connected layer. In the output, the model has to predict which permutation was used from the 64 possible classes. If we know the permutation, we can solve the puzzle.
+<img alt="Architecture for Image Jigsaw Task" class="img-center" src="/images/ss-jigsaw-architecture.png"></p>
+<p>To solve the Jigsaw puzzle, the model needs to learn to identify how parts are assembled in an object, relative positions of different parts of objects and shape of objects. Thus, the representations are useful for downstream tasks in classification and&nbsp;detection.</p>
+<p><strong>Papers</strong>:<br>
+<a href="https://arxiv.org/abs/1603.09246">Unsupervised learning of visual representations by solving jigsaw&nbsp;puzzles</a></p>
+<h2 id="5-context-prediction">5. <strong>Context&nbsp;Prediction</strong></h2>
+<p>Formulation:   </p>
+<blockquote>
+<p>What if we prepared training pairs of (image-patch, neighbor) by randomly taking an image patch and one of its neighbors around it from large, unlabeled image&nbsp;collection?  </p>
+</blockquote>
+<p><img alt="Training Data for Context Prediction" class="img-center" src="/images/ss-context-prediction-gen.png">  </p>
+<p>To solve this pre-text task, <a href="https://arxiv.org/abs/1505.05192">Doersch et al.</a> used an architecture similar to that of a jigsaw puzzle. We pass the patches through two siamese ConvNets to extract features, concatenate the features and do a classification over 8 classes denoting the 8 possible neighbor positions.
+<img alt="Architecture for Context Prediction" class="img-center" src="/images/ss-context-prediction-architecture.png"></p>
+<p><strong>Papers</strong>:<br>
+<a href="https://arxiv.org/abs/1505.05192">Unsupervised Visual Representation Learning by Context&nbsp;Prediction</a></p>
+<h2 id="6-geometric-transformation-recognition">6. <strong>Geometric Transformation&nbsp;Recognition</strong></h2>
+<p>Formulation:   </p>
+<blockquote>
+<p>What if we prepared training pairs of (rotated-image, rotation-angle) by randomly rotating images by (0, 90, 180, 270) from large, unlabeled image&nbsp;collection?  </p>
+</blockquote>
+<p><img alt="Training Data for Geometric Transformation" class="img-center" src="/images/ss-geometric-transformation-gen.png">  </p>
+<p>To solve this pre-text task, <a href="https://arxiv.org/abs/1505.05192">Gidaris et al.</a> propose an architecture where a rotated image is passed through a ConvNet and the network has to classify it into 4 classes(0/90/270/360 degrees).
+<img alt="Architecture for Geometric Transformation Predction" class="img-center" src="/images/ss-geometric-transformation-architecture.png"></p>
+<p>Though a very simple idea, the model has to understand location, types and pose of objects in an image to solve this task and as such, the representations learned are useful for downstream&nbsp;tasks.</p>
+<p><strong>Papers</strong>:<br>
+<a href="https://arxiv.org/abs/1803.07728">Unsupervised Representation Learning by Predicting Image&nbsp;Rotations</a></p>
+<h2 id="7-image-clustering">7. <strong>Image&nbsp;Clustering</strong></h2>
+<p>Formulation:   </p>
+<blockquote>
+<p>What if we prepared training pairs of (image, cluster-number) by performing clustering on large, unlabeled image&nbsp;collection?  </p>
+</blockquote>
+<p><img alt="Training Data for Image Clustering" class="img-center" src="/images/ss-image-clustering-gen.png">  </p>
+<p>To solve this pre-text task, <a href="https://arxiv.org/abs/1807.05520">Caron et al.</a> propose an architecture called deep clustering. Here, the images are first clustered and the clusters are used as classes. The task of the ConvNet is to predict the cluster label for an input image.
+<img alt="Architecture for Deep Clustering" class="img-center" src="/images/ss-deep-clustering-architecture.png"></p>
+<p><strong>Papers</strong>:<br>
+<a href="https://arxiv.org/abs/1807.05520">Deep clustering for unsupervised learning of visual&nbsp;features</a></p>
+<h2 id="8-synthetic-imagery">8. <strong>Synthetic&nbsp;Imagery</strong></h2>
+<p>Formulation:   </p>
+<blockquote>
+<p>What if we prepared training pairs of (image, properties) by generating synthetic images using game engines and adapting it to real&nbsp;images?  </p>
+</blockquote>
+<p><img alt="Training Data for Sythetic Imagery" class="img-center" src="/images/synthetic-imagery-data.png">  </p>
+<p>To solve this pre-text task, <a href="https://arxiv.org/pdf/1711.09082.pdf">Ren et al.</a> propose an architecture where weight-shared ConvNets are trained on both synthetic and real images and then a discriminator learns to classify whether ConvNet features fed to it is of a synthetic image or a real image. Due to adversarial nature, the shared representations between real and synthetic images get better.
+<img alt="Architecture for Synthetic Image Training" class="img-center" src="/images/ss-synthetic-image-architecture.png"></p>
+<h1 id="learning-from-videos">Learning from&nbsp;Videos</h1>
+<h2 id="1-frame-order-verification">1. <strong>Frame Order&nbsp;Verification</strong></h2>
+<p>Formulation:   </p>
+<blockquote>
+<p>What if we prepared training pairs of (video frames, correct/incorrect order) by shuffling frames from videos of objects in&nbsp;motion?   </p>
+</blockquote>
+<p><img alt="Training Data for Video Order" class="img-center" src="/images/ss-frame-order-data-gen.png">  </p>
+<p>To solve this pre-text task, <a href="https://arxiv.org/pdf/1711.09082.pdf">Misra et al.</a> propose an architecture where video frames are passed through weight-shared ConvNets and the model has to figure out whether the frames are in the correct order or not. In doing so, the model learns not just spatial features but also takes into account temporal features.
+<img alt="Architecture for Frame Order Verification" class="img-center" src="/images/ss-temporal-order-architecture.png"></p>
+<p><strong>Papers</strong>:<br>
+<a href="https://arxiv.org/abs/1603.08561">Shuffle and Learn: Unsupervised Learning using Temporal Order&nbsp;Verification</a></p>
+<h2 id="citation-info-bibtex">Citation Info&nbsp;(BibTex)</h2>
+<p>If you found this blog post useful, please consider citing it&nbsp;as:</p>
+<div class="highlight"><pre><span></span>@misc{chaudhary2020selfsupervised,
+  title   = {The Illustrated Self-Supervised Learning},
+  author  = {Amit Chaudhary},
+  year    = 2020,
+  note    = {\url{https://amitness.com/2020/02/illustrated-self-supervised-learning}}
+}
+</pre></div>
+
+
+<h2 id="references">References</h2>
+<ul>
+<li>Jing, et al. “<a href="https://arxiv.org/abs/1902.06162">Self-Supervised Visual Feature Learning with Deep Neural Networks: A Survey.</a>”</li>
+</ul></div>
+    <section>
+        <p id="post-share-links">
+            Share on:
+            <a href="https://twitter.com/intent/tweet?text=The%20Illustrated%20Self-Supervised%C2%A0Learning&url=https%3A//amitness.com/2020/02/illustrated-self-supervised-learning/&via=amitness" target="_blank" title="Share on Twitter" style="color: #0084b4">Twitter</a>
+            |
+            <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A//amitness.com/2020/02/illustrated-self-supervised-learning/" target="_blank" title="Share on Facebook" style="color: #3B5998">Facebook</a>
+            |
+            <a href="mailto:?subject=The%20Illustrated%20Self-Supervised%C2%A0Learning&amp;body=https%3A//amitness.com/2020/02/illustrated-self-supervised-learning/" target="_blank" title="Share via Email" style="color: #d34836">Email</a>
+        </p>
+    </section>
+    <div class="comments">
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+        var disqus_shortname = 'amit-chaudharys-blog';
+        var disqus_identifier = '2020/02/illustrated-self-supervised-learning/';
+        var disqus_url = 'https://amitness.com/2020/02/illustrated-self-supervised-learning/';
+        (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//amit-chaudharys-blog.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+      </script>
+      <noscript>Please enable JavaScript to view the comments.</noscript>
+    </div>
+
+  </article>
+</section>
+
+<script type="application/ld+json">
+  {"headline": "The Illustrated Self-Supervised&nbsp;Learning", "description": "A visual introduction to the patterns of problem formulation in self-supervised\u00a0learning.", "datePublished": "2020-02-25T03:00:00+05:45", "@context": "http://schema.org", "@type": "BlogPosting", "author": {"@type": "Person", "name": "Amit Chaudhary"}, "mainEntityOfPage": {"@type": "WebPage", "@id": "https://amitness.com/2020/02/illustrated-self-supervised-learning/"}, "dateModified": "2020-02-25T03:00:00+05:45", "image": {"@type": "ImageObject", "url": "/images/supervised-manual-annotation.png"}, "articleSection": "illustration"}
+</script>
+    </div>
+
+    <div class="column is-one-quarter-desktop is-one-third-tablet is-hidden-print">
+      <aside class="menu">
+<div id="mc_embed_signup">
+    <form
+            action="https://feedburner.google.com/fb/a/mailverify"
+            method="post" id="mc-embedded-subscribe-form"
+            name="mc-embedded-subscribe-form" class="validate" target="popupwindow"
+            onsubmit="window.open('https://feedburner.google.com/fb/a/mailverify?uri=amitness', 'popupwindow', 'scrollbars=yes,width=550,height=520');return true">
+
+        <h2 class="menu-label">Mailing List</h2>
+
+        <div id="mc_embed_signup_scroll">
+            <div class="field mc-field-group">
+                <label for="mce-EMAIL" class="label is-small">Email</label>
+                <div class="field-body">
+                    <div class="field">
+                        <p class="control has-icons-left">
+                            <input type="text" name="email" class="input required email is-small"
+                                   id="mce-EMAIL" placeholder="Email address"/>
+                            <input type="hidden" value="amitness" name="uri"/>
+                            <input type="hidden" name="loc" value="en_US"/>
+                            <span class="icon is-small is-left">
+              <i class="fa fa-envelope"></i>
+            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="field is-grouped">
+                <p class="control">
+                    <input type="submit" name="subscribe" value="Subscribe"
+                           class="button is-small is-success" id="mc-embedded-subscribe">
+                <p>
+                </p>
+            </div>
+
+        </div>
+    </form>
+</div><p class="menu-label">Social</p>
+<ul class="menu-list">
+    <li><a href="https://github.com/amitness">
+      <span class="icon is-small">
+          <i class="fa fa-github fa-fw"></i>
+      </span>
+      <span class="link-text">GitHub</span>
+    </a></li>
+    <li><a href="https://twitter.com/amitness">
+      <span class="icon is-small">
+          <i class="fa fa-twitter fa-fw"></i>
+      </span>
+      <span class="link-text">Twitter</span>
+    </a></li>
+    <li><a href="https://np.linkedin.com/in/amitness">
+      <span class="icon is-small">
+          <i class="fa fa-linkedin fa-fw"></i>
+      </span>
+      <span class="link-text">Linkedin</span>
+    </a></li>
+    <li><a href="mailto:meamitkc@gmail.com">
+      <span class="icon is-small">
+          <i class="fa fa-envelope fa-fw"></i>
+      </span>
+      <span class="link-text">Email</span>
+    </a></li>
+    <li><a href="/atom.xml">
+      <span class="icon is-small">
+          <i class="fa fa-globe fa-fw"></i>
+      </span>
+      <span class="link-text">Feed</span>
+    </a></li>
+
+
+</ul>        <br>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Right Sidebar -->
+<ins class="adsbygoogle"
+    style="display:block"
+    data-ad-client="ca-pub-7848839318244183"
+    data-ad-slot="6944746094"
+    data-ad-format="auto"
+    data-full-width-responsive="true"></ins>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>      </aside>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container has-text-centered">
+    <div class="credits">
+      <span>Copyright &copy; 2020 Amit Chaudhary
+    </div>
+  </div>
+</footer>
+
+    <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-98232022-1']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = 'https://ssl.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+<script type="text/javascript">
+    var disqus_shortname = 'amit-chaudharys-blog';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'https://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+<script data-ad-client="ca-pub-7848839318244183" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script type="text/javascript">
+  document.getElementById('navToggle').addEventListener('click', function () {
+    var nav = document.getElementById('navMenu');
+    var className = nav.getAttribute('class');
+    if (className == 'navbar-menu') {
+      nav.className = 'navbar-menu is-active';
+    } else {
+      nav.className = 'navbar-menu';
+    }
+  });
+</script>
+</body>
+</html>

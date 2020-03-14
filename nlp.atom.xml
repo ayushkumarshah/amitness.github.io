@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Amit Chaudhary - nlp</title><link href="https://amitness.com/" rel="alternate"></link><link href="https://amitness.com/nlp.atom.xml" rel="self"></link><id>https://amitness.com/</id><updated>2020-02-19T16:13:00+05:45</updated><entry><title>Back Translation for Text Augmentation with Google Sheets</title><link href="https://amitness.com/2020/02/back-translation-in-google-sheets/" rel="alternate"></link><published>2020-02-19T16:13:00+05:45</published><updated>2020-02-19T16:13:00+05:45</updated><author><name>Amit Chaudhary</name></author><id>tag:amitness.com,2020-02-19:/2020/02/back-translation-in-google-sheets/</id><summary type="html">&lt;p&gt;Learn how to augment existing labeled text data for free using Google&amp;nbsp;Sheets.&lt;/p&gt;</summary><content type="html">&lt;p&gt;When working on Natural Language Processing applications such as Text Classification, collecting enough labeled examples for each category manually can be difficult. In this article, I will go over an interesting technique to augment your existing text data automatically called back&amp;nbsp;translation.&lt;/p&gt;
+&lt;h2 id="introduction-to-back-translation"&gt;Introduction to Back&amp;nbsp;Translation&lt;/h2&gt;
+&lt;p&gt;The key idea of back translation is very simple. We create augmented version of a sentence using the following&amp;nbsp;steps:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;You take the original text written in&amp;nbsp;English  &lt;/li&gt;
+&lt;li&gt;You convert it into another language (say French) using Google&amp;nbsp;Translate  &lt;/li&gt;
+&lt;li&gt;You convert the translated text back into English using Google&amp;nbsp;Translate   &lt;/li&gt;
+&lt;li&gt;Keep the augmented text if the original text and the back-translated text are&amp;nbsp;different. &lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;img alt="Backtranslation with English and French" class="img-center" src="/images/backtranslation-en-fr.png"&gt;
+&lt;p class="has-text-centered has-text-grey"&gt;
+Figure: Back&amp;nbsp;Translation
+&lt;/p&gt;&lt;/p&gt;
+&lt;h2 id="using-back-translation-in-google-sheets"&gt;Using Back Translation in Google&amp;nbsp;Sheets&lt;/h2&gt;
+&lt;p&gt;We need a machine translation service to perform the translation to a different language and back to English. Google Translate is the most popular service for this purpose, but you need to get an &lt;span class="caps"&gt;API&lt;/span&gt; key to use it and it is a paid&amp;nbsp;service. &lt;/p&gt;
+&lt;p&gt;Luckily, Google provides a handy feature in their Google Sheets web app, which we can leverage for our&amp;nbsp;purpose.&lt;/p&gt;
+&lt;h3 id="step-1-load-your-data"&gt;Step 1: Load your&amp;nbsp;data&lt;/h3&gt;
+&lt;p&gt;Let&amp;#8217;s assume we are building a sentiment analysis model and our dataset has sentences and their associated labels. We can load it into Google Sheets by importing the Excel/&lt;span class="caps"&gt;CSV&lt;/span&gt; file directly.
+&lt;img alt="Loading Files in Google Sheets" src="/images/backtranslation-sheets-step-1.png"&gt;&lt;/p&gt;
+&lt;h2 id="step-2-add-a-column-to-hold-augmented-data"&gt;Step 2: Add a column to hold augmented&amp;nbsp;data&lt;/h2&gt;
+&lt;p&gt;Add a new column and use the &lt;code&gt;GOOGLETRANSLATE()&lt;/code&gt; function to translate from English to French and back to English.
+&lt;img alt="Add column for translation" src="/images/backtranslation-sheets-step-2.png"&gt;&lt;/p&gt;
+&lt;p&gt;The command to place in the column&amp;nbsp;is&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nx"&gt;GOOGLETRANSLATE&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;GOOGLETRANSLATE&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;A2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;en&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;fr&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;fr&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;en&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Once the command is placed, press Enter and you will see the translation.
+&lt;img alt="Run translation on cells" src="/images/backtranslation-sheets-step-2.2.png"&gt;&lt;/p&gt;
+&lt;p&gt;Now, select the first cell of &amp;#8220;Backtranslated&amp;#8221; column and drag the small square at the bottom right side below to apply this formula over the whole column 
+&lt;img alt="Drag translation to all cells" src="/images/backtranslation-sheets-step-2.3.png"&gt;&lt;/p&gt;
+&lt;p&gt;This should apply to all your training texts and you will get back the augmented version.
+&lt;img alt="Example of translated rows" src="/images/backtranslation-sheets-step-2.4.png"&gt;&lt;/p&gt;
+&lt;h2 id="step-3-filter-out-duplicated-data"&gt;Step 3: Filter out duplicated&amp;nbsp;data&lt;/h2&gt;
+&lt;p&gt;For texts where the original text and what get back from &lt;code&gt;back translation&lt;/code&gt; are the same, we can filter them out programmatically by comparing the original text column and the augmented column. Then, only keep responses that have &lt;code&gt;True&lt;/code&gt; value in the &lt;code&gt;Changed&lt;/code&gt; column.
+&lt;img alt="Filter out same translation" src="/images/backtranslation-sheets-step-3.2.png"&gt;&lt;/p&gt;
+&lt;h2 id="step-4-export-your-data"&gt;Step 4: Export your&amp;nbsp;data&lt;/h2&gt;
+&lt;p&gt;You can download your data as a &lt;span class="caps"&gt;CSV&lt;/span&gt; file and augment your existing training&amp;nbsp;data.&lt;/p&gt;
+&lt;h2 id="example-sheet"&gt;Example&amp;nbsp;Sheet&lt;/h2&gt;
+&lt;p&gt;Here is a &lt;a href="https://docs.google.com/spreadsheets/d/1pE9RAukrc4S9jf22RxVr_vEBqN9_DyZaRY8QQRek8Fs/edit#gid=2000059744"&gt;Google Sheet&lt;/a&gt; demonstrating all the four steps above. You can refer to that and make a copy of it to test things&amp;nbsp;out.&lt;/p&gt;
+&lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;Back translation offers an interesting approach when you&amp;#8217;ve small training data but want to improve the performance of your&amp;nbsp;model.&lt;/p&gt;</content></entry><entry><title>Visual Paper Summary: ALBERT (A Lite BERT)</title><link href="https://amitness.com/2020/02/albert-visual-summary/" rel="alternate"></link><published>2020-02-08T22:00:00+05:45</published><updated>2020-02-08T22:00:00+05:45</updated><author><name>Amit Chaudhary</name></author><id>tag:amitness.com,2020-02-08:/2020/02/albert-visual-summary/</id><summary type="html">&lt;p&gt;An illustrated summary of &lt;span class="caps"&gt;ALBERT&lt;/span&gt;&amp;nbsp;paper.&lt;/p&gt;</summary><content type="html">&lt;p&gt;Consider a sentence given below. As humans, when we encounter the word &amp;#8220;&lt;strong&gt;apple&lt;/strong&gt;&amp;#8220;, we&amp;nbsp;could: &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Associate the word &amp;#8220;apple&amp;#8221; to our mental representation of the fruit&amp;nbsp;&amp;#8220;apple&amp;#8221;  &lt;/li&gt;
+&lt;li&gt;Associate &amp;#8220;apple&amp;#8221; to the fruit rather than the company based on the&amp;nbsp;context  &lt;/li&gt;
+&lt;li&gt;Understand the big picture that &amp;#8220;&lt;em&gt;he ate an apple&lt;/em&gt;&amp;#8221;  &lt;/li&gt;
+&lt;li&gt;Understand it at character-level, word-level and&amp;nbsp;sentence-level  &lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img alt="Representations in Humans vs Machines" class="img-center" src="/images/nlp-representation-learning.png"&gt;    &lt;/p&gt;
+&lt;p&gt;The basic premise of latest developments in &lt;span class="caps"&gt;NLP&lt;/span&gt; is to give machines the ability to learn such&amp;nbsp;representations. &lt;/p&gt;
+&lt;p&gt;In 2018, Google released &lt;span class="caps"&gt;BERT&lt;/span&gt; that attempted to learn representations based on a few novel&amp;nbsp;ideas:&lt;/p&gt;
+&lt;h2 id="recap-bert"&gt;Recap:  &lt;span class="caps"&gt;BERT&lt;/span&gt;&lt;/h2&gt;
+&lt;h3 id="1-masked-language-modeling"&gt;1. Masked Language&amp;nbsp;Modeling&lt;/h3&gt;
+&lt;p&gt;Language modeling basically involves predicting the word given its context as a way to learn representation. Tradionally, this involved predicting the next word in sentence given previous words.
+&lt;img alt="Language Modeling in NLP" class="img-center" src="/images/nlp-language-model-1.png"&gt;  &lt;/p&gt;
+&lt;p&gt;&lt;span class="caps"&gt;BERT&lt;/span&gt; instead used a &lt;strong&gt;masked language model&lt;/strong&gt; objective, in which we randomly mask words in document and try to predict them based on surrounding context.
+&lt;img alt="Masked Language Model in BERT" class="img-center" src="/images/bert-masked-language-model.png"&gt;&lt;br&gt;
+&lt;p class="has-text-centered"&gt;
+Credits: &lt;a href="https://giphy.com/stickers/marvelstudios-oh-thanos-snapped-TfjfIgE9YUgdyz8V1J"&gt;Marvel Studios on&amp;nbsp;Giphy&lt;/a&gt;
+&lt;/p&gt;&lt;/p&gt;
+&lt;h3 id="2-next-sentence-prediction"&gt;2. Next Sentence&amp;nbsp;Prediction&lt;/h3&gt;
+&lt;p&gt;The idea with &amp;#8220;Next Sentence Prediction&amp;#8221; is to detect whether two sentences are coherent when placed one after another or not.
+&lt;img alt="Next Sentence Prediction Task" class="img-center" src="/images/bert-nsp.png"&gt;  &lt;/p&gt;
+&lt;p&gt;For this, consecutive sentences from the training data are used as a positive example. For negative example, some sentence is taken and a random sentence from another document is placed next to it. &lt;span class="caps"&gt;BERT&lt;/span&gt; model is trained on this task to identify if two sentences can occur next to each&amp;nbsp;other.&lt;/p&gt;
+&lt;h3 id="3-transformer-architecture"&gt;3. Transformer&amp;nbsp;Architecture&lt;/h3&gt;
+&lt;p&gt;To solve the above two tasks, &lt;span class="caps"&gt;BERT&lt;/span&gt; uses stacked layers of transformer blocks as encoders. Word vectors are passed through the layers to capture the meaning and yeild a vector of size 768 for the base&amp;nbsp;model.  &lt;/p&gt;
+&lt;p&gt;&lt;img alt="Transformer Layers in BERT" src="/images/bert-blocks.png"&gt;
+Jay Alammar has an &lt;a href="http://jalammar.github.io/illustrated-bert/"&gt;excellent post&lt;/a&gt; that illustrates the internals of transformers in more&amp;nbsp;depth.&lt;/p&gt;
+&lt;h2 id="problems-with-bert"&gt;Problems with &lt;span class="caps"&gt;BERT&lt;/span&gt;&lt;/h2&gt;
+&lt;p&gt;&lt;span class="caps"&gt;BERT&lt;/span&gt;, when released, yielded state of art results on many &lt;span class="caps"&gt;NLP&lt;/span&gt; tasks on leaderboards. But, the model was very large in size which resulted in some issues. The &amp;#8220;&lt;span class="caps"&gt;ALBERT&lt;/span&gt;&amp;#8221; paper highlights these issues in two&amp;nbsp;categories:  &lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Memory Limitation and Communication Overhead:&lt;/strong&gt;&lt;br&gt;
+    Consider a simple neural network with one input node, two hidden nodes and a output node. Even such a simple neural network will have 7 parameters to learn due to weights and bias per node.&lt;br&gt;
+&lt;img alt="Number of parameters in a neural network" class="img-center" src="/images/small-network-parameters.png"&gt;  &lt;/p&gt;
+&lt;p&gt;&lt;span class="caps"&gt;BERT&lt;/span&gt;-large, being a complex model, has 340 million parameters because of to its 24 hidden layers and lots of nodes in feed-forward network and attention heads. If you wanted to build upon the work on &lt;span class="caps"&gt;BERT&lt;/span&gt; and brings improvements to it, you would require large compute requirements to train from scratch and iterate on it.
+&lt;img alt="BERT overload on GPU" class="img-center" src="/images/bert-heavy-on-gpu.png"&gt;&lt;br&gt;
+These compute requirements mainly involve GPUs and TPUs, but such devices have a memory limitation. So, there is a limit to the size of&amp;nbsp;models.&lt;/p&gt;
+&lt;p&gt;One popular approach to this problem in distributed training. Let&amp;#8217;s take example of data parallelism on &lt;span class="caps"&gt;BERT&lt;/span&gt;-large, where training data is divided into two machines. The model is trained on two machines on chunks of data. As shown in the figure, you can notice how the large number of parameters to transfer during synchronization of gradients can slow down the training process. The same bottleneck applies for the model parallelism as well where we store different parts of the model(parameters) on different machines.
+&lt;img alt="Communication Overhead in Distributed Training" class="img-center" src="/images/bert-communication-overhead.png"&gt; 
+&lt;p class="has-text-centered"&gt;
+    Figure: Communication overhead in distributed&amp;nbsp;training
+&lt;/p&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Model Degradation&lt;/strong&gt;&lt;br&gt;
+    Recent trend in the &lt;span class="caps"&gt;NLP&lt;/span&gt; research community is using larger and larger models to get state-of-the-art performance on leaderboards. &lt;span class="caps"&gt;ALBERT&lt;/span&gt; shows that that this can have diminishing&amp;nbsp;returns.  &lt;/p&gt;
+&lt;p&gt;In the paper, the authors performed an interesting&amp;nbsp;experiment. &lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;If larger models lead to better performance, why not double the hidden layer units of the largest available &lt;span class="caps"&gt;BERT&lt;/span&gt; model(&lt;span class="caps"&gt;BERT&lt;/span&gt;-large) from 1024 units to 2048&amp;nbsp;units? &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;They call it &amp;#8220;&lt;span class="caps"&gt;BERT&lt;/span&gt;-xlarge&amp;#8221;. Surprisingly, the larger model actually performs worse than the &lt;span class="caps"&gt;BERT&lt;/span&gt;-large model on both Language Modeling task as well as when tested on a reading comprehension test (&lt;span class="caps"&gt;RACE&lt;/span&gt;).
+&lt;img alt="BERT-xlarge vs BERT-large on RACE benchmark" src="/images/bert-doubled-performance-race.png"&gt;&lt;/p&gt;
+&lt;p&gt;From the plots given in the original paper, we can see how the performance degrades. &lt;span class="caps"&gt;BERT&lt;/span&gt;-xlarge is performing worse than &lt;span class="caps"&gt;BERT&lt;/span&gt;-large even though it is larger in size and has more parameters.
+&lt;img alt="Performance graph for BERT x-large vs large" src="/images/bert-xlarge-vs-bert-large.png"&gt;
+&lt;p class="has-text-centered"&gt;
+    Credits: &lt;span class="caps"&gt;ALBERT&lt;/span&gt;&amp;nbsp;paper
+&lt;/p&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id="from-bert-to-albert"&gt;From &lt;span class="caps"&gt;BERT&lt;/span&gt; to &lt;span class="caps"&gt;ALBERT&lt;/span&gt;&lt;/h2&gt;
+&lt;p&gt;&lt;span class="caps"&gt;ALBERT&lt;/span&gt; attacks these problems by building upon on &lt;span class="caps"&gt;BERT&lt;/span&gt; with a few novel&amp;nbsp;ideas:  &lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Cross-layer parameter sharing&lt;/strong&gt;&lt;br&gt;
+    &lt;span class="caps"&gt;BERT&lt;/span&gt; large model had 24 layers while it&amp;#8217;s base version had 12-layers. As we add more layers, we increase the number of parameters exponentially.&lt;br&gt;
+&lt;img alt="Exponential increase in parameters for BERT" src="/images/bert-parameters.png"&gt;&lt;/p&gt;
+&lt;p&gt;To solve this problem, &lt;span class="caps"&gt;ALBERT&lt;/span&gt; uses the concept of cross-layer parameter sharing. To illustrate, let&amp;#8217;s see the example of 12-layer &lt;span class="caps"&gt;BERT&lt;/span&gt;-base model. Instead of learning unique parameters for each of the 12 layers, we only learn parameters for the first block, and reuse the block in the remaining 11&amp;nbsp;layers.&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Parameter sharing in ALBERT" src="/images/albert-parameter-sharing.png"&gt;&lt;/p&gt;
+&lt;p&gt;We can share parameter for either feed-forward layer only, the attention parameters only or share the parameters of the whole block itself. The paper shares the parameters for whole&amp;nbsp;block.&lt;/p&gt;
+&lt;p&gt;Compared to the 110 million paramters of &lt;span class="caps"&gt;BERT&lt;/span&gt;-base, the &lt;span class="caps"&gt;ALBERT&lt;/span&gt; model only has 31 million parameters while using the same number of layers and 768 hidden units. The effect on accuracy is minimal for embedding size of 128. Major drop in accuracy is due to feed-forward network parameter sharing. Effect of sharing attention parameters is minimal.
+&lt;img alt="Reduction in parameters due to weight-sharing" src="/images/albert-parameter-sharing-results.png"&gt;
+&lt;p class="has-text-centered"&gt;
+    Figure: Effect of cross-layer parameter strategy on&amp;nbsp;performance
+&lt;/p&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Sentence-Order Prediction (&lt;span class="caps"&gt;SOP&lt;/span&gt;)&lt;/strong&gt; &lt;/p&gt;
+&lt;p&gt;&lt;span class="caps"&gt;BERT&lt;/span&gt; introduced a binary classification loss called &amp;#8220;&lt;strong&gt;Next Sentence Prediction&lt;/strong&gt;&amp;#8220;. This was specifically created to improve performance on downstream tasks that use sentence pairs like &amp;#8220;Natural Language Inference&amp;#8221;. The basic process&amp;nbsp;is:  &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Take two segments that appear consecutively from training&amp;nbsp;corpus  &lt;/li&gt;
+&lt;li&gt;Create a random pair of segment from different document as negative examples
+&lt;img alt="Next Sentence Prediction Data Format" src="/images/nsp-training-data-generation.png"&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Papers like &lt;a href="https://arxiv.org/abs/1907.11692"&gt;&lt;span class="caps"&gt;ROBERTA&lt;/span&gt;&lt;/a&gt; and &lt;a href="https://arxiv.org/abs/1906.08237"&gt;&lt;span class="caps"&gt;XLNET&lt;/span&gt;&lt;/a&gt; have shed light on the ineffectiveness of &lt;span class="caps"&gt;NSP&lt;/span&gt; and found it&amp;#8217;s impact on the downstream tasks unreliable. On eliminating the &lt;span class="caps"&gt;NSP&lt;/span&gt; task, the performance across several tasks&amp;nbsp;improved.&lt;/p&gt;
+&lt;p&gt;So, &lt;span class="caps"&gt;ALBERT&lt;/span&gt; proposes an alternative task called &lt;strong&gt;&amp;#8220;Sentence Order Prediction&amp;#8221;&lt;/strong&gt;. The key idea&amp;nbsp;is:  &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Take two consecutive segments from same document as positive&amp;nbsp;class  &lt;/li&gt;
+&lt;li&gt;Swap the order of the same segment and use that as negative example&lt;br&gt;
+&lt;img alt="Sentence Order Prediction" src="/images/sentence-order-prediction.png"&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The forces the model to learn finer-grained distinction about discourse-level coherence&amp;nbsp;properties.&lt;/p&gt;
+&lt;p&gt;&lt;span class="caps"&gt;ALBERT&lt;/span&gt; conjectures that &lt;span class="caps"&gt;NSP&lt;/span&gt; was ineffective because it&amp;#8217;s not a difficult task when compared to masked language modeling. In a single task, it mixes both topic prediction and coherence prediction. The topic prediction part is easy to learn because it overlaps with the masked language model loss. Thus, &lt;span class="caps"&gt;NSP&lt;/span&gt; will give higher scores even when it hasn&amp;#8217;t learned coherence&amp;nbsp;prediction.&lt;/p&gt;
+&lt;p&gt;&lt;span class="caps"&gt;SOP&lt;/span&gt; improves performance on downstream multi-sentence encoding tasks (&lt;span class="caps"&gt;SQUAD&lt;/span&gt; 1.1, 2.0, &lt;span class="caps"&gt;MNLI&lt;/span&gt;, &lt;span class="caps"&gt;SST&lt;/span&gt;-2, &lt;span class="caps"&gt;RACE&lt;/span&gt;).
+&lt;img alt="Sentence Order Prediction Impact" src="/images/sop-results-albert.png"&gt;&lt;/p&gt;
+&lt;p&gt;Here we can see how model trained on &lt;span class="caps"&gt;NSP&lt;/span&gt; is only giving scores slightly better than random baseline on &lt;span class="caps"&gt;SOP&lt;/span&gt; task, but model trained on &lt;span class="caps"&gt;SOP&lt;/span&gt; can solve the &lt;span class="caps"&gt;NSP&lt;/span&gt; task quite effectively. This provides evidence that &lt;span class="caps"&gt;SOP&lt;/span&gt; leads to better learning&amp;nbsp;representation.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Factorized embedding parameterization&lt;/strong&gt; &lt;br&gt;
+    In &lt;span class="caps"&gt;BERT&lt;/span&gt;, the embeddings used (word piece embeddings) size was linked to the hidden layer sizes of the transformer blocks. Word piece embeddings learnt from the one hot encoding representations of a vocabulary of size 30,000 was used. These are projected directly to the hidden space of the hidden&amp;nbsp;layer.  &lt;/p&gt;
+&lt;p&gt;Let&amp;#8217;s say we have a vocabulary of size 30K, word-piece embedding of dimension E=768 and hidden layer of size H=768. If we increase hidden units in the block, then we need to add a new dimension to each embedding as well. This problem is prevalent in &lt;span class="caps"&gt;XLNET&lt;/span&gt; and &lt;span class="caps"&gt;ROBERTA&lt;/span&gt; as well.
+&lt;img alt="Factorized Embedding Parameterization" class="img-center" src="/images/bert-embedding.png"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span class="caps"&gt;ALBERT&lt;/span&gt; solves this problem by factorizing the large vocabulary embedding matrix into two smaller matrices. This separates the size of the hidden layers from the size of the vocabulary embeddings. This allows us to grow the hidden size without significantly increasing the parameter size of the vocabulary embeddings.
+&lt;img alt="Decomposing Embeddings into factors" class="img-center" src="/images/embedding-decompose-albert.png"&gt;&lt;/p&gt;
+&lt;p&gt;We project the One Hot Encoding vector into the lower dimension embedding space of E=100 and then this embedding space into the hidden space&amp;nbsp;H=768.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id="results"&gt;Results&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;18x fewer parameters than &lt;span class="caps"&gt;BERT&lt;/span&gt;-large&lt;/li&gt;
+&lt;li&gt;Trained 1.7x&amp;nbsp;faster&lt;/li&gt;
+&lt;li&gt;Got &lt;span class="caps"&gt;SOTA&lt;/span&gt; results on &lt;span class="caps"&gt;GLUE&lt;/span&gt;, &lt;span class="caps"&gt;RACE&lt;/span&gt; and &lt;span class="caps"&gt;SQUAD&lt;/span&gt; during its release&lt;ul&gt;
+&lt;li&gt;&lt;span class="caps"&gt;RACE&lt;/span&gt;: 89.4% [45.3%&amp;nbsp;improvement]&lt;/li&gt;
+&lt;li&gt;&lt;span class="caps"&gt;GLUE&lt;/span&gt; Benchmark:&amp;nbsp;89.4&lt;/li&gt;
+&lt;li&gt;&lt;span class="caps"&gt;SQUAD&lt;/span&gt; 2.0 F1-score:&amp;nbsp;92.2&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;&lt;span class="caps"&gt;ALBERT&lt;/span&gt; marks an important step towards building language models that not only get &lt;span class="caps"&gt;SOTA&lt;/span&gt; on the leaderboards but are also feasible for real-world&amp;nbsp;applications.&lt;/p&gt;
+&lt;h2 id="citation-info-bibtex"&gt;Citation Info&amp;nbsp;(BibTex)&lt;/h2&gt;
+&lt;p&gt;If you found this blog post useful, please consider citing it&amp;nbsp;as:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;@misc{chaudhary2020albert,
+  title   = {Visual Paper Summary: ALBERT (A Lite BERT)},
+  author  = {Amit Chaudhary},
+  year    = 2020,
+  note    = {\url{https://amitness.com/2020/02/albert-visual-summary}}
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="references"&gt;References&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://arxiv.org/pdf/1909.11942.pdf"&gt;&lt;span class="caps"&gt;ALBERT&lt;/span&gt;: A Lite &lt;span class="caps"&gt;BERT&lt;/span&gt; for Self-supervised Learning of Language&amp;nbsp;Representations&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content></entry><entry><title>Identify the Language of Text using Python</title><link href="https://amitness.com/2019/07/identify-text-language-python/" rel="alternate"></link><published>2019-07-15T10:44:00+05:45</published><updated>2019-08-03T12:44:00+05:45</updated><author><name>Amit Chaudhary</name></author><id>tag:amitness.com,2019-07-15:/2019/07/identify-text-language-python/</id><summary type="html">&lt;p&gt;Learn how to predict the language of a given piece of text using Natural Language&amp;nbsp;Processing.&lt;/p&gt;</summary><content type="html">&lt;p&gt;Text Language Identification is the process of predicting the language of a given a piece of text. You might have encountered it when Chrome shows a popup to translate a webpage when it detects that the content is not in English. Behind the scenes, Chrome is using a model to predict the language of text used on a&amp;nbsp;webpage.&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Google Translate Popup on Chrome" src="/images/google_translate_popup.png"&gt;&lt;/p&gt;
+&lt;p&gt;When working with a dataset for &lt;span class="caps"&gt;NLP&lt;/span&gt;,  the corpus may contain a mixed set of languages. Here, language identification can be useful to either filter out a few languages or to translate the corpus to a single language and then use for your downstream&amp;nbsp;tasks.&lt;/p&gt;
+&lt;p&gt;In this post, I will demonstrate how to use the Fasttext library for language&amp;nbsp;identification.&lt;/p&gt;
+&lt;h2 id="facebooks-fasttext-library"&gt;Facebook&amp;#8217;s Fasttext&amp;nbsp;library&lt;/h2&gt;
+&lt;p&gt;&lt;img alt="Fasttext Logo" src="/images/fastText_logo.png"&gt; &lt;/p&gt;
+&lt;p&gt;&lt;a href="https://fasttext.cc/"&gt;Fasttext&lt;/a&gt; is an open-source library in Python for word embeddings and text classification. It is built for production use rather than research and hence is optimized for performance and size. It extends the &lt;a href="https://en.wikipedia.org/wiki/Word2vec"&gt;Word2Vec&lt;/a&gt; model with ideas such as using &lt;a href="https://arxiv.org/abs/1607.04606"&gt;subword information&lt;/a&gt; and &lt;a href="https://arxiv.org/abs/1612.03651"&gt;model compression&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;For our purpose of language identification, we can use the pre-trained models provided by fastText. The model was trained on a dataset drawn from &lt;a href="https://www.wikipedia.org/"&gt;Wikipedia&lt;/a&gt;, &lt;a href="https://tatoeba.org/eng/"&gt;Tatoeba&lt;/a&gt;, and &lt;a href="http://nlp.ffzg.hr/resources/corpora/setimes/"&gt;SETimes&lt;/a&gt;. The basic idea is to prepare a training data of (text, language) pairs and then train a classifier on&amp;nbsp;it.&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Language Training Data Example" src="/images/lang_training_data.png"&gt; &lt;/p&gt;
+&lt;p&gt;The benchmark shows that the pre-trained models are better than &lt;a href="https://github.com/saffsd/langid.py"&gt;langid.py&lt;/a&gt;, another popular language identification tool. Fasttext has better accuracy and also the inference time is very fast. It supports a wide variety of languages including French, German, English, Spanish,&amp;nbsp;Chinese.&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Benchmarks of Fasttext vs langid" src="/images/fasttext_benchmark.png"&gt;&lt;/p&gt;
+&lt;h2 id="steps"&gt;Steps&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Install the &lt;code&gt;Fasttext&lt;/code&gt; library using&amp;nbsp;pip.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pip install fasttext
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;There are two versions of the pre-trained models. Choose the model which fits your memory and space&amp;nbsp;requirements:&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.bin"&gt;lid.176.bin&lt;/a&gt;: faster and slightly more accurate but &lt;span class="caps"&gt;126MB&lt;/span&gt; in&amp;nbsp;size&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.ftz"&gt;lid.176.ftz&lt;/a&gt;: a compressed version of the model, with a file size of&amp;nbsp;917kB&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Download the pre-trained model from Fasttext to some location. You&amp;#8217;ll need to specify this location later in the code. In our example, we download it to the /tmp&amp;nbsp;directory. &lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;wget -O /tmp/lid.176.bin https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.bin
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;Now, we import fasttext and then load the model from the pretrained path we downloaded&amp;nbsp;earlier.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;fasttext&lt;/span&gt;
+
+&lt;span class="n"&gt;PRETRAINED_MODEL_PATH&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;/tmp/lid.176.bin&amp;#39;&lt;/span&gt;
+&lt;span class="n"&gt;model&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;fasttext&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;load_model&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;PRETRAINED_MODEL_PATH&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;Let&amp;#8217;s take an example sentence in French which means &amp;#8216;I eat food&amp;#8217;. To detect it&amp;#8217;s language, just pass a list of sentences to the predict function. The sentences should be in the &lt;span class="caps"&gt;UTF&lt;/span&gt;-8&amp;nbsp;format.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img alt="French to English Translation Training Data" src="/images/french_to_english_translation.png"&gt; &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;sentences&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;je mange de la nourriture&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="n"&gt;predictions&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;model&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;predict&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;sentences&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;predictions&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="c1"&gt;# ([[&amp;#39;__label__fr&amp;#39;]], array([[0.96568173]]))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;The model returns back two tuples back. One of them is an array of language labels and the other is the confidence for each sentence. Here &amp;#8216;fr&amp;#8217; is the &lt;span class="caps"&gt;ISO&lt;/span&gt; 639 code for French. The model is 96.56% confident that the language is&amp;nbsp;French.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Fasttext returns the &lt;span class="caps"&gt;ISO&lt;/span&gt; code for the most probable one among the 170 languages. You can refer to the page on &lt;a href="https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes"&gt;&lt;span class="caps"&gt;ISO&lt;/span&gt; 639&lt;/a&gt; codes to find language for each&amp;nbsp;symbol.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;af als am an ar arz as ast av az azb ba bar bcl be bg bh bn bo bpy br bs bxr ca cbk ce ceb ckb co cs cv cy da de diq dsb dty dv el eml en eo es et eu fa fi fr frr fy ga gd gl gn gom gu gv he hi hif hr hsb ht hu hy ia id ie ilo io is it ja jbo jv ka kk km kn ko krc ku kv kw ky la lb lez li lmo lo lrc lt lv mai mg mhr min mk ml mn mr mrj ms mt mwl my myv mzn nah nap nds ne new nl nn no oc or os pa pam pfl pl pms pnb ps pt qu rm ro ru rue sa sah sc scn sco sd sh si sk sl so sq sr su sv sw ta te tg th tk tl tr tt tyv ug uk ur uz vec vep vi vls vo wa war wuu xal xmf yi yo yue zh
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;To programmatically convert language symbols back to the language name, you can use &lt;a href="https://pypi.org/project/pycountry/"&gt;pycountry&lt;/a&gt; package. Install the package using&amp;nbsp;pip.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;pip&lt;/span&gt; &lt;span class="n"&gt;install&lt;/span&gt; &lt;span class="n"&gt;pycountry&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;Now, pass the symbol to pycountry and you will get back the language&amp;nbsp;name.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;pycountry&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;languages&lt;/span&gt;
+
+&lt;span class="n"&gt;language_name&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;languages&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;alpha_2&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;fr&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;language_name&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="c1"&gt;# french&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;</content><category term="fasttext"></category><category term="language"></category></entry></feed>
